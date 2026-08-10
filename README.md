@@ -82,8 +82,8 @@ those dependencies into the output.
 Each push to `main`, or a manual release-workflow run, builds and tests the mod
 using pinned public compile references and uploads a Thunderstore-compatible ZIP
 as a GitHub Actions artifact. `VERSION` supplies the semantic major and minor
-numbers; the workflow run number supplies the patch. The first stable release
-will therefore be `1.0.N`, where `N` is the single-digit workflow run number.
+numbers; the workflow run number supplies the patch. Stable releases use the
+`1.0.N` line, where `N` is the single-digit workflow run number.
 BepInEx, assembly, and Thunderstore identities are generated from that single
 release version. Publishing is manual. Package layout, validation, and the
 publication procedure are documented in

@@ -131,9 +131,11 @@ invalid-placement behavior were verified through
    mirrored product icon were completed for the release candidate.
 
 All planned release-candidate implementation and acceptance work was completed.
-No known implementation or validation blocker remains recorded for the stable
-`1.0.N` line. The version change and manual publication have not yet been
-performed.
+No known implementation or validation blocker remained after the accepted
+0.4.7 package audit. The stable version transition was then authorized and
+`VERSION` was changed to the `1.0.N` line. Artifact inspection and Thunderstore
+publication remain release operations outside the implementation scope;
+publication is manual.
 
 ## Evidence record
 
