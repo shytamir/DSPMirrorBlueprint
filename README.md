@@ -66,9 +66,10 @@ with an optional nonstandard game installation path:
 build.cmd "D:\Games\Dyson Sphere Program"
 ```
 
-The release DLL is written to `bin\Release\DSPMirrorBlueprint.dll`. The build
-references BepInEx, Unity, and framework assemblies from the selected game
-installation; it does not copy those dependencies into the output.
+The build runs the deterministic mirror-transform tests and writes the release
+DLL to `bin\Release\DSPMirrorBlueprint.dll`. It references BepInEx, Unity, and
+framework assemblies from the selected game installation; it does not copy
+those dependencies into the output.
 
 ## Scope
 

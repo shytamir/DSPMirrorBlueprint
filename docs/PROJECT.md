@@ -79,10 +79,14 @@ The smallest useful design has three boundaries:
 3. **Mirror transform**: deterministic, game-independent logic that maps
    blueprint-relative positions and orientations across one selected axis.
 
-The mirror transform should be expressed as pure data operations where practical
-so both axes, orientation changes, and repeated transforms can be tested without
-launching the game. Harmony patches or other runtime hooks should be introduced
-only after inspection identifies the narrowest reliable integration points.
+The mirror transform is expressed as game-independent data operations over an
+explicit aggregate transform plane. It retains area metadata and topology,
+reflects both endpoint positions and orientation frames, and transforms reform
+rectangle origins without rounding. Focused deterministic tests cover both axes
+and repeated transforms without launching the game. Runtime adapters remain
+responsible for converting game Euler rotations to and from orientation vectors.
+Harmony patches or other runtime hooks should use the narrow integration point
+identified in the assembly findings.
 
 ## Behavioral invariants to establish
 
