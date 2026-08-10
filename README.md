@@ -76,11 +76,13 @@ those dependencies into the output.
 
 ## Release package
 
-Pushing a `vM.m.p` tag, or manually running the release workflow with a matching
-version, builds and tests the mod using pinned public compile references and
-uploads a Thunderstore-compatible ZIP as a GitHub Actions artifact. The version
-must match `Plugin.PluginVersion`. Package layout and validation are documented
-in [docs/THUNDERSTORE-PACKAGE.md](docs/THUNDERSTORE-PACKAGE.md).
+Each push to `main`, or a manual release-workflow run, builds and tests the mod
+using pinned public compile references and uploads a Thunderstore-compatible ZIP
+as a GitHub Actions artifact. `VERSION` supplies the semantic major and minor
+numbers; the workflow run number supplies the patch. BepInEx, assembly, and
+Thunderstore identities are generated from that single release version. Package
+layout and validation are documented in
+[docs/THUNDERSTORE-PACKAGE.md](docs/THUNDERSTORE-PACKAGE.md).
 
 ## Scope
 

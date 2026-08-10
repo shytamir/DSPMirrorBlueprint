@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace DSPMirrorBlueprint
 {
-    [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
+    [BepInPlugin(PluginGuid, PluginName, BuildVersion.BepInPluginVersion)]
     public sealed class Plugin : BaseUnityPlugin
     {
         public const string PluginGuid = "com.shytamir.dspmirrorblueprint";
         public const string PluginName = "DSP Mirror Blueprint";
-        public const string PluginVersion = "0.3.2";
+        public const string PluginVersion = BuildVersion.PluginVersion;
 
         private ConfigEntry<bool> enableGeometryDump;
         private ConfigEntry<KeyboardShortcut> geometryDumpKey;

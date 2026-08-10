@@ -1,17 +1,12 @@
 name: Build Thunderstore release package
 
-run-name: Package ${{ github.ref_name }} from ${{ github.sha }}
+run-name: Package build ${{ github.run_number }} from ${{ github.sha }}
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      version:
-        description: Package version matching Plugin.PluginVersion (M.m.p)
-        required: true
-        type: string
 
 permissions:
   contents: read
@@ -38,30 +33,9 @@ jobs:
         id: version
         shell: pwsh
         run: |
-          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
-            $version = '${{ inputs.version }}'
-          }
-          else {
-            $tag = '${{ github.ref_name }}'
-            if (-not $tag.StartsWith('v')) {
-              throw "Release tag must start with v: $tag"
-            }
-            $version = $tag.Substring(1)
-          }
-          if ($version -notmatch '^\d+\.\d+\.\d+$') {
-            throw "Release version is invalid: $version"
-          }
-          $pluginSource = Get-Content -Raw `
-            'src/DSPMirrorBlueprint/Plugin.cs'
-          if ($pluginSource -notmatch `
-              'PluginVersion\s*=\s*"([^"]+)"') {
-            throw 'PluginVersion was not found.'
-          }
-          if ($Matches[1] -cne $version) {
-            throw "PluginVersion $($Matches[1]) does not match $version."
-          }
-          "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
-          "package_version=$version" >> $env:GITHUB_OUTPUT
+          ./scripts/Set-BuildVersion.ps1 `
+            -Sequence ${{ github.run_number }} `
+            -Commit '${{ github.sha }}'
 
       - name: Download BepInEx 5.4.17 compile references
         shell: pwsh
@@ -111,10 +85,21 @@ jobs:
             -p:UseCiReferences=true `
             "-p:CiBepInExCoreDir=$env:CI_BEPINEX_CORE_DIR" `
             "-p:Version=$env:PACKAGE_VERSION" `
-            "-p:AssemblyVersion=${env:PACKAGE_VERSION}.0" `
-            "-p:FileVersion=${env:PACKAGE_VERSION}.0" `
+            "-p:AssemblyVersion=$env:ASSEMBLY_VERSION" `
+            "-p:FileVersion=$env:ASSEMBLY_VERSION" `
+            "-p:InformationalVersion=$env:RELEASE_LABEL" `
+            -p:IncludeSourceRevisionInInformationalVersion=false `
             -p:ContinuousIntegrationBuild=true `
             "-p:OutputPath=$output"
+
+      - name: Validate generated build identity
+        shell: pwsh
+        run: |
+          ./scripts/Test-BuildVersion.ps1 `
+            -DllPath 'artifacts/build/DSPMirrorBlueprint.dll' `
+            -ExpectedPackageVersion $env:PACKAGE_VERSION `
+            -ExpectedAssemblyVersion $env:ASSEMBLY_VERSION `
+            -ExpectedReleaseLabel $env:RELEASE_LABEL
 
       - name: Build and validate Thunderstore package
         shell: pwsh

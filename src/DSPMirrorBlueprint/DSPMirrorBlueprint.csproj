@@ -5,6 +5,11 @@
     <Nullable>disable</Nullable>
     <AssemblyName>DSPMirrorBlueprint</AssemblyName>
     <RootNamespace>DSPMirrorBlueprint</RootNamespace>
+    <Version>0.4.0</Version>
+    <AssemblyVersion>0.4.0.0</AssemblyVersion>
+    <FileVersion>0.4.0.0</FileVersion>
+    <InformationalVersion>0.4.0.local</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <GameRoot Condition="'$(GameRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program</GameRoot>
     <GameManagedDir>$(GameRoot)\DSPGAME_Data\Managed</GameManagedDir>
     <BepInExCoreDir>$(GameRoot)\BepInEx\core</BepInExCoreDir>
