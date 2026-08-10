@@ -83,10 +83,13 @@ The mirror transform is expressed as game-independent data operations over an
 explicit aggregate transform plane. It retains area metadata and topology,
 reflects both endpoint positions and orientation frames, and transforms reform
 rectangle and cursor origins without rounding. Focused deterministic tests cover
-both axes and repeated transforms without launching the game. The runtime adapter
-converts game Euler rotations to and from orientation vectors. A Harmony postfix
-on `BuildTool_BlueprintPaste.DeterminRotate()` handles the fixed input and asks
-the game's existing path to refresh the preview after each successful mirror.
+both axes, repeated transforms, and connection-slot remapping without launching
+the game. The runtime adapter converts game Euler rotations and model slot poses
+to and from orientation vectors. Slots are remapped by reflecting their
+prefab-local poses, including orientation to disambiguate coincident positions.
+A Harmony postfix on `BuildTool_BlueprintPaste.DeterminRotate()` handles the
+fixed input and asks the game's existing path to refresh the preview after each
+successful mirror.
 
 ## Behavioral invariants to establish
 

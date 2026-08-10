@@ -32,13 +32,25 @@ namespace DSPMirrorBlueprint
     internal sealed class BlueprintTransformBuilding
     {
         public int Index;
+        public int ModelIndex;
         public int AreaIndex;
         public int? InputObjectIndex;
         public int? OutputObjectIndex;
+        public int OutputToSlot;
+        public int InputFromSlot;
+        public int OutputFromSlot;
+        public int InputToSlot;
         public BlueprintVector3 Position;
         public BlueprintVector3 Position2;
         public BlueprintOrientation Orientation = new BlueprintOrientation();
         public BlueprintOrientation Orientation2 = new BlueprintOrientation();
+    }
+
+    internal sealed class BlueprintTransformSlotPose
+    {
+        public int Index;
+        public BlueprintVector3 Position;
+        public BlueprintOrientation Orientation = new BlueprintOrientation();
     }
 
     internal sealed class BlueprintTransformReform
@@ -75,6 +87,8 @@ namespace DSPMirrorBlueprint
             new List<BlueprintTransformBuilding>();
         public readonly List<BlueprintTransformReform> Reforms =
             new List<BlueprintTransformReform>();
+        public readonly Dictionary<int, List<BlueprintTransformSlotPose>> SlotPosesByModelIndex =
+            new Dictionary<int, List<BlueprintTransformSlotPose>>();
     }
 
     internal static class BlueprintMirrorTransform
@@ -89,8 +103,13 @@ namespace DSPMirrorBlueprint
                     "model",
                     "Blueprint transform bounds must be positive.");
 
+            var buildingsByIndex = new Dictionary<int, BlueprintTransformBuilding>();
+            foreach (BlueprintTransformBuilding building in model.Buildings)
+                buildingsByIndex[building.Index] = building;
+
             foreach (BlueprintTransformBuilding building in model.Buildings)
             {
+                RemapConnectionSlots(model, buildingsByIndex, building);
                 building.Position = ReflectPosition(
                     building.Position,
                     model.Width,
@@ -117,6 +136,91 @@ namespace DSPMirrorBlueprint
                 model.CursorOffsetX = model.Width - 1 - model.CursorOffsetX;
             else
                 model.CursorOffsetY = model.Height - 1 - model.CursorOffsetY;
+        }
+
+        private static void RemapConnectionSlots(
+            BlueprintTransformModel model,
+            Dictionary<int, BlueprintTransformBuilding> buildingsByIndex,
+            BlueprintTransformBuilding building)
+        {
+            BlueprintTransformBuilding connected;
+            if (building.OutputObjectIndex.HasValue &&
+                buildingsByIndex.TryGetValue(building.OutputObjectIndex.Value, out connected))
+            {
+                building.OutputToSlot = ReflectSlotIndex(
+                    model,
+                    connected.ModelIndex,
+                    building.OutputToSlot);
+                building.OutputFromSlot = ReflectSlotIndex(
+                    model,
+                    building.ModelIndex,
+                    building.OutputFromSlot);
+            }
+
+            if (building.InputObjectIndex.HasValue &&
+                buildingsByIndex.TryGetValue(building.InputObjectIndex.Value, out connected))
+            {
+                building.InputFromSlot = ReflectSlotIndex(
+                    model,
+                    connected.ModelIndex,
+                    building.InputFromSlot);
+                building.InputToSlot = ReflectSlotIndex(
+                    model,
+                    building.ModelIndex,
+                    building.InputToSlot);
+            }
+        }
+
+        private static int ReflectSlotIndex(
+            BlueprintTransformModel model,
+            int modelIndex,
+            int slotIndex)
+        {
+            if (slotIndex < 0) return slotIndex;
+
+            List<BlueprintTransformSlotPose> poses;
+            if (!model.SlotPosesByModelIndex.TryGetValue(modelIndex, out poses))
+                return slotIndex;
+
+            BlueprintTransformSlotPose source = null;
+            foreach (BlueprintTransformSlotPose pose in poses)
+                if (pose.Index == slotIndex) source = pose;
+            if (source == null) return slotIndex;
+
+            BlueprintVector3 targetPosition = source.Position;
+            targetPosition.X = -targetPosition.X;
+            BlueprintVector3 targetForward = source.Orientation.Forward;
+            targetForward.X = -targetForward.X;
+            BlueprintVector3 targetUp = source.Orientation.Up;
+            targetUp.X = -targetUp.X;
+
+            BlueprintTransformSlotPose best = null;
+            float bestError = Single.MaxValue;
+            foreach (BlueprintTransformSlotPose candidate in poses)
+            {
+                float error = DistanceSquared(candidate.Position, targetPosition) +
+                    DistanceSquared(candidate.Orientation.Forward, targetForward) +
+                    DistanceSquared(candidate.Orientation.Up, targetUp);
+                if (error < bestError)
+                {
+                    best = candidate;
+                    bestError = error;
+                }
+            }
+
+            return best != null && bestError <= 0.0001f
+                ? best.Index
+                : slotIndex;
+        }
+
+        private static float DistanceSquared(
+            BlueprintVector3 left,
+            BlueprintVector3 right)
+        {
+            float x = left.X - right.X;
+            float y = left.Y - right.Y;
+            float z = left.Z - right.Z;
+            return x * x + y * y + z * z;
         }
 
         private static BlueprintVector3 ReflectPosition(

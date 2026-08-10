@@ -1,6 +1,7 @@
 using BepInEx.Logging;
 using HarmonyLib;
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -98,6 +99,7 @@ namespace DSPMirrorBlueprint
 
                 ReadAreas(areaValues, model);
                 ReadBuildings(buildingValues, model);
+                ReadModelSlotPoses(model);
                 ReadReforms(reformValues, model);
                 BlueprintMirrorTransform.Apply(model, axis);
                 WriteBuildings(buildingValues, model);
@@ -140,12 +142,54 @@ namespace DSPMirrorBlueprint
                 if (value == null) continue;
                 model.Buildings.Add(new BlueprintTransformBuilding {
                     Index = ReadInt(value, "index"),
+                    ModelIndex = ReadInt(value, "modelIndex"),
                     AreaIndex = ReadInt(value, "areaIndex"),
+                    InputObjectIndex = ReadConnectionIndex(
+                        value,
+                        "inputObj",
+                        "tempInputObjIdx"),
+                    OutputObjectIndex = ReadConnectionIndex(
+                        value,
+                        "outputObj",
+                        "tempOutputObjIdx"),
+                    OutputToSlot = ReadInt(value, "outputToSlot"),
+                    InputFromSlot = ReadInt(value, "inputFromSlot"),
+                    OutputFromSlot = ReadInt(value, "outputFromSlot"),
+                    InputToSlot = ReadInt(value, "inputToSlot"),
                     Position = ReadPosition(value, String.Empty),
                     Position2 = ReadPosition(value, "2"),
                     Orientation = ReadOrientation(value, String.Empty),
                     Orientation2 = ReadOrientation(value, "2")
                 });
+            }
+        }
+
+        private static void ReadModelSlotPoses(BlueprintTransformModel model)
+        {
+            Type ldbType = AccessTools.TypeByName("LDB");
+            object models = GetStaticMember(ldbType, "models", "_models");
+            var modelIndices = new HashSet<int>();
+            foreach (BlueprintTransformBuilding building in model.Buildings)
+                modelIndices.Add(building.ModelIndex);
+
+            foreach (int modelIndex in modelIndices)
+            {
+                object modelProto = InvokeSelect(models, modelIndex);
+                object prefabDesc = GetFieldOrNull(modelProto, "prefabDesc");
+                Array poseValues = GetFieldOrNull(prefabDesc, "slotPoses") as Array;
+                if (poseValues == null || poseValues.Length == 0) continue;
+
+                var poses = new List<BlueprintTransformSlotPose>();
+                for (int i = 0; i < poseValues.Length; i++)
+                {
+                    Pose pose = (Pose)poseValues.GetValue(i);
+                    poses.Add(new BlueprintTransformSlotPose {
+                        Index = i,
+                        Position = FromUnityVector(pose.position),
+                        Orientation = OrientationFromRotation(pose.rotation)
+                    });
+                }
+                model.SlotPosesByModelIndex[modelIndex] = poses;
             }
         }
 
@@ -178,6 +222,10 @@ namespace DSPMirrorBlueprint
                 WritePosition(value, "2", building.Position2);
                 WriteOrientation(value, String.Empty, building.Orientation);
                 WriteOrientation(value, "2", building.Orientation2);
+                SetField(value, "outputToSlot", building.OutputToSlot);
+                SetField(value, "inputFromSlot", building.InputFromSlot);
+                SetField(value, "outputFromSlot", building.OutputFromSlot);
+                SetField(value, "inputToSlot", building.InputToSlot);
             }
         }
 
@@ -220,10 +268,29 @@ namespace DSPMirrorBlueprint
                 ReadFloat(building, "pitch" + suffix),
                 ReadFloat(building, "yaw" + suffix),
                 ReadFloat(building, "tilt" + suffix));
+            return OrientationFromRotation(rotation);
+        }
+
+        private static BlueprintOrientation OrientationFromRotation(
+            Quaternion rotation)
+        {
             return new BlueprintOrientation {
                 Forward = FromUnityVector(rotation * Vector3.forward),
                 Up = FromUnityVector(rotation * Vector3.up)
             };
+        }
+
+        private static int? ReadConnectionIndex(
+            object building,
+            string objectField,
+            string temporaryIndexField)
+        {
+            object connected = GetFieldOrNull(building, objectField);
+            if (connected != null)
+                return ReadInt(connected, "index");
+
+            int temporaryIndex = ReadInt(building, temporaryIndexField);
+            return temporaryIndex >= 0 ? (int?)temporaryIndex : null;
         }
 
         private static void WriteOrientation(
@@ -268,6 +335,43 @@ namespace DSPMirrorBlueprint
             if (field == null)
                 throw new MissingFieldException(instance.GetType().FullName, name);
             return field.GetValue(instance);
+        }
+
+        private static object GetFieldOrNull(object instance, string name)
+        {
+            if (instance == null) return null;
+            FieldInfo field = FindField(instance.GetType(), name);
+            return field == null ? null : field.GetValue(instance);
+        }
+
+        private static object GetStaticMember(Type type, params string[] names)
+        {
+            if (type == null) return null;
+            const BindingFlags flags = BindingFlags.Static |
+                BindingFlags.Public | BindingFlags.NonPublic |
+                BindingFlags.FlattenHierarchy;
+            foreach (string name in names)
+            {
+                FieldInfo field = type.GetField(name, flags);
+                if (field != null) return field.GetValue(null);
+                PropertyInfo property = type.GetProperty(name, flags);
+                if (property != null) return property.GetValue(null, null);
+            }
+            return null;
+        }
+
+        private static object InvokeSelect(object instance, int id)
+        {
+            if (instance == null) return null;
+            MethodInfo method = instance.GetType().GetMethod(
+                "Select",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                null,
+                new[] { typeof(int) },
+                null);
+            return method == null
+                ? null
+                : method.Invoke(instance, new object[] { id });
         }
 
         private static void SetField(object instance, string name, object value)

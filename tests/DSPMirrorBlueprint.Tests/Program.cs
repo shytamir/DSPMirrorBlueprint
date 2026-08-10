@@ -13,6 +13,8 @@ namespace DSPMirrorBlueprint.Tests
                 HorizontalMirrorReflectsGeometry,
                 VerticalMirrorReflectsGeometry,
                 DoubleMirrorRestoresOriginal,
+                ConnectionSlotsFollowMirroredPrefabPoses,
+                CoincidentSlotPositionsUseOrientation,
                 AreaMetadataAndTopologyRemainStable,
                 InvalidBoundsAreRejected
             };
@@ -116,7 +118,38 @@ namespace DSPMirrorBlueprint.Tests
                 Equal(1, model.Reforms[0].Y, axis + " restored reform y");
                 Equal(2, model.CursorOffsetX, axis + " restored cursor x");
                 Equal(4, model.CursorOffsetY, axis + " restored cursor y");
+                Equal(10, building.InputFromSlot, axis + " restored input slot");
+                Equal(9, building.OutputToSlot, axis + " restored output slot");
             }
+        }
+
+        private static void ConnectionSlotsFollowMirroredPrefabPoses()
+        {
+            foreach (BlueprintMirrorAxis axis in new[] {
+                BlueprintMirrorAxis.Horizontal,
+                BlueprintMirrorAxis.Vertical
+            })
+            {
+                BlueprintTransformModel model = CreateModel();
+                BlueprintMirrorTransform.Apply(model, axis);
+                Equal(4, model.Buildings[0].InputFromSlot, axis + " input slot");
+                Equal(5, model.Buildings[0].OutputToSlot, axis + " output slot");
+                Equal(0, model.Buildings[0].OutputFromSlot, axis + " local output slot");
+                Equal(1, model.Buildings[0].InputToSlot, axis + " local input slot");
+
+                model = CreateModel();
+                model.Buildings[0].OutputToSlot = -1;
+                BlueprintMirrorTransform.Apply(model, axis);
+                Equal(-1, model.Buildings[0].OutputToSlot, axis + " belt sentinel slot");
+            }
+        }
+
+        private static void CoincidentSlotPositionsUseOrientation()
+        {
+            BlueprintTransformModel model = CreateModel();
+            model.Buildings[0].OutputToSlot = 3;
+            BlueprintMirrorTransform.Apply(model, BlueprintMirrorAxis.Vertical);
+            Equal(11, model.Buildings[0].OutputToSlot, "orientation-disambiguated slot");
         }
 
         private static void AreaMetadataAndTopologyRemainStable()
@@ -186,6 +219,10 @@ namespace DSPMirrorBlueprint.Tests
                 AreaIndex = 0,
                 InputObjectIndex = 7,
                 OutputObjectIndex = 9,
+                InputFromSlot = 10,
+                OutputToSlot = 9,
+                OutputFromSlot = 0,
+                InputToSlot = 1,
                 Position = new BlueprintVector3(1.25f, 1.5f, 2f),
                 Position2 = new BlueprintVector3(3.75f, 4.25f, 3f),
                 Orientation = new BlueprintOrientation {
@@ -197,6 +234,22 @@ namespace DSPMirrorBlueprint.Tests
                     Up = new BlueprintVector3(0.6f, -0.2f, 0.5f)
                 }
             });
+            model.Buildings.Add(new BlueprintTransformBuilding {
+                Index = 7,
+                ModelIndex = 65,
+                Orientation = new BlueprintOrientation(),
+                Orientation2 = new BlueprintOrientation()
+            });
+            model.Buildings.Add(new BlueprintTransformBuilding {
+                Index = 9,
+                ModelIndex = 65,
+                Orientation = new BlueprintOrientation(),
+                Orientation2 = new BlueprintOrientation()
+            });
+            AddSlotPair(model, 0, 2, -1f, 1f, 1f, 0f);
+            AddSlotPair(model, 3, 11, 1f, -1f, 1f, 1f);
+            AddSlotPair(model, 4, 10, 1.1f, -1.1f, 0f, 1f);
+            AddSlotPair(model, 5, 9, 1.1f, -1.1f, -1f, 1f);
             model.Reforms.Add(new BlueprintTransformReform {
                 AreaIndex = 0,
                 X = 1,
@@ -206,6 +259,42 @@ namespace DSPMirrorBlueprint.Tests
                 Data = 32
             });
             return model;
+        }
+
+        private static void AddSlotPair(
+            BlueprintTransformModel model,
+            int leftIndex,
+            int rightIndex,
+            float leftX,
+            float rightX,
+            float y,
+            float forwardX)
+        {
+            List<BlueprintTransformSlotPose> poses;
+            if (!model.SlotPosesByModelIndex.TryGetValue(65, out poses))
+            {
+                poses = new List<BlueprintTransformSlotPose>();
+                model.SlotPosesByModelIndex.Add(65, poses);
+            }
+
+            poses.Add(CreateSlot(leftIndex, leftX, y, forwardX));
+            poses.Add(CreateSlot(rightIndex, rightX, y, -forwardX));
+        }
+
+        private static BlueprintTransformSlotPose CreateSlot(
+            int index,
+            float x,
+            float y,
+            float forwardX)
+        {
+            return new BlueprintTransformSlotPose {
+                Index = index,
+                Position = new BlueprintVector3(x, y, 0f),
+                Orientation = new BlueprintOrientation {
+                    Forward = new BlueprintVector3(forwardX, 1f - Math.Abs(forwardX), 0f),
+                    Up = new BlueprintVector3(0f, 0f, 1f)
+                }
+            };
         }
 
         private static void Equal(float expected, float actual, string name)

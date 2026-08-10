@@ -241,8 +241,9 @@ The following are implementation conclusions, not game-provided mirror rules:
   not only `yaw/yaw2`.
 - Cursor offsets, area anchor offsets, and reform rectangles must remain
   consistent with the reflected area geometry.
-- Connection object references preserve graph identity, but the behavior of port
-  slot numbers and belt/inserter offsets under reflection requires validation.
+- Connection object references preserve graph identity. Runtime slot-pose
+  evidence confirms that attachment slot numbers must be remapped by reflecting
+  prefab-local X; full slot orientation disambiguates coincident corner poses.
 - Width and height do not exchange when reflecting across an axis; reform
   rectangle origins do move within those unchanged bounds.
 
