@@ -11,7 +11,7 @@ namespace DSPMirrorBlueprint
 {
     internal static class BlueprintGeometryDumper
     {
-        private const string SchemaVersion = "1.0";
+        private const string SchemaVersion = "1.1";
         private const int MaximumSnapshotBytes = 4 * 1024 * 1024;
 
         public static bool TryDump(out string path, out string error)
@@ -104,12 +104,15 @@ namespace DSPMirrorBlueprint
 
         private static Dictionary<string, object> BuildSnapshot(object blueprint)
         {
+            object blueprintBuildings = GetMember(blueprint, "buildings");
             List<object> areas = ExportSequence(
                 GetMember(blueprint, "areas"),
                 ExportArea);
             List<object> buildings = ExportSequence(
-                GetMember(blueprint, "buildings"),
+                blueprintBuildings,
                 ExportBuilding);
+            List<object> modelSlotPoseSets = ExportModelSlotPoseSets(
+                blueprintBuildings);
             object reformData = GetMember(blueprint, "reformData");
             List<object> reforms = ExportSequence(
                 GetMember(reformData, "rects"),
@@ -125,9 +128,11 @@ namespace DSPMirrorBlueprint
                 { "areaCount", areas.Count },
                 { "buildingCount", buildings.Count },
                 { "reformRectCount", reforms.Count },
+                { "modelSlotPoseSetCount", modelSlotPoseSets.Count },
                 { "areas", areas },
                 { "buildings", buildings },
-                { "reformRects", reforms }
+                { "reformRects", reforms },
+                { "modelSlotPoseSets", modelSlotPoseSets }
             };
 
             return new Dictionary<string, object> {
@@ -195,6 +200,98 @@ namespace DSPMirrorBlueprint
                 { "data", GetMember(reform, "data") },
                 { "areaIndex", GetMember(reform, "areaIndex") }
             };
+        }
+
+        private static List<object> ExportModelSlotPoseSets(object buildingValues)
+        {
+            var modelIndices = new SortedSet<int>();
+            IEnumerable buildings = buildingValues as IEnumerable;
+            if (buildings != null)
+            {
+                foreach (object building in buildings)
+                {
+                    object value = GetMember(building, "modelIndex");
+                    if (value != null)
+                        modelIndices.Add(Convert.ToInt32(value, CultureInfo.InvariantCulture));
+                }
+            }
+
+            object models = GetStatic(FindType("LDB"), "models", "_models");
+            var result = new List<object>();
+            foreach (int modelIndex in modelIndices)
+            {
+                object model = InvokeSelect(models, modelIndex);
+                object prefabDesc = GetMember(model, "prefabDesc");
+                object slotPoseValues = GetMember(prefabDesc, "slotPoses");
+                List<object> slotPoses = ExportSlotPoses(slotPoseValues);
+                result.Add(new Dictionary<string, object> {
+                    { "modelIndex", modelIndex },
+                    { "available", prefabDesc != null },
+                    { "slotPoseCount", slotPoses.Count },
+                    { "slotPoses", slotPoses }
+                });
+            }
+            return result;
+        }
+
+        private static List<object> ExportSlotPoses(object value)
+        {
+            var result = new List<object>();
+            IEnumerable poses = value as IEnumerable;
+            if (poses == null) return result;
+
+            int index = 0;
+            foreach (object pose in poses)
+            {
+                object position = GetMember(pose, "position");
+                object rotation = GetMember(pose, "rotation");
+                result.Add(new Dictionary<string, object> {
+                    { "index", index++ },
+                    { "position", ExportVector(position) },
+                    { "rotation", ExportQuaternion(rotation) }
+                });
+            }
+            return result;
+        }
+
+        private static object ExportVector(object vector)
+        {
+            return new Dictionary<string, object> {
+                { "x", GetMember(vector, "x") },
+                { "y", GetMember(vector, "y") },
+                { "z", GetMember(vector, "z") }
+            };
+        }
+
+        private static object ExportQuaternion(object quaternion)
+        {
+            return new Dictionary<string, object> {
+                { "x", GetMember(quaternion, "x") },
+                { "y", GetMember(quaternion, "y") },
+                { "z", GetMember(quaternion, "z") },
+                { "w", GetMember(quaternion, "w") }
+            };
+        }
+
+        private static object InvokeSelect(object instance, int id)
+        {
+            if (instance == null) return null;
+            try
+            {
+                MethodInfo method = instance.GetType().GetMethod(
+                    "Select",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                    null,
+                    new[] { typeof(int) },
+                    null);
+                return method == null
+                    ? null
+                    : method.Invoke(instance, new object[] { id });
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private static object GetConnectionIndex(object building, string memberName)

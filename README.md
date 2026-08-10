@@ -38,10 +38,11 @@ test fixtures. It is disabled by default. To use it:
 JSON files are written beneath
 `BepInEx\DSP-Mirror-Blueprint\Diagnostics`. They contain only the active cloned
 blueprint's area geometry, building item/model IDs, offsets, angles, connection
-indices and slots, and reform rectangles. Blueprint names, paths, descriptions,
-authors, building content and parameters, save identifiers, and planet names are
-not exported. The result is reported in `BepInEx\LogOutput.log`; no in-game
-visual element is added.
+indices and slots, reform rectangles, and runtime slot poses for only the models
+used by that blueprint. Blueprint names, paths, descriptions, authors, building
+content and parameters, prefab paths, save identifiers, and planet names are not
+exported. The result is reported in `BepInEx\LogOutput.log`; no in-game visual
+element is added.
 
 ## Target environment
 

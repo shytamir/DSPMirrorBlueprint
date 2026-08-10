@@ -11,7 +11,7 @@ namespace DSPMirrorBlueprint
     {
         public const string PluginGuid = "com.shytamir.dspmirrorblueprint";
         public const string PluginName = "DSP Mirror Blueprint";
-        public const string PluginVersion = "0.3.0";
+        public const string PluginVersion = "0.3.1";
 
         private ConfigEntry<bool> enableGeometryDump;
         private ConfigEntry<KeyboardShortcut> geometryDumpKey;

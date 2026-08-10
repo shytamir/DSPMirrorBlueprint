@@ -263,8 +263,11 @@ crossing. Remaining runtime work is:
 
 The mod now includes a disabled-by-default `F9` diagnostic that writes only the
 active cloned `BlueprintData` geometry: area fields, building item/model IDs,
-offsets, angles, connection indices/slots, and reform rectangles. It omits
-blueprint paths, descriptions, authorship, content, parameters, planet names,
-and unrelated game or save data. Usage and output location are documented in the
-repository README. Diagnostic JSON remains runtime evidence and must not be
-committed.
+offsets, angles, connection indices/slots, reform rectangles, and runtime slot
+poses for models referenced by the active blueprint. The slot poses are resolved
+through `LDB.models.Select(modelIndex).prefabDesc.slotPoses` and contain only
+numeric model indices plus pose vectors; prefab paths and unrelated model data
+are excluded. The diagnostic also omits blueprint paths, descriptions,
+authorship, content, parameters, planet names, and unrelated game or save data.
+Usage and output location are documented in the repository README. Diagnostic
+JSON remains runtime evidence and must not be committed.
