@@ -1,5 +1,8 @@
 # Release-candidate in-game validation
 
+> Archived validation procedure. Active project management is maintained in
+> [PROJECT.md](../PROJECT.md).
+
 This matrix defined the in-game acceptance work required before changing
 `VERSION` to the stable `1.0` line. Record the game version, mod version, result,
 and a short note for every row when reusing it for regression testing. A test

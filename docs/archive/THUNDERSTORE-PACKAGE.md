@@ -1,5 +1,8 @@
 # Thunderstore package contract
 
+> Archived release procedure. Active project management is maintained in
+> [PROJECT.md](../PROJECT.md).
+
 The release workflow produces one installable ZIP with this exact layout:
 
 ```text

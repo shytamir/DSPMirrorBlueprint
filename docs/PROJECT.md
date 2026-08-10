@@ -1,4 +1,24 @@
-# Project contract
+# Project contract and maintenance record
+
+## Maintenance status
+
+DSP Mirror Blueprint entered maintenance mode after the stable `1.0.8` package
+was built, independently inspected, and accepted as production-ready. Repository
+release work for `1.0.8` was completed; Thunderstore publication remains a
+manual distribution step rather than active repository work.
+
+There is no planned feature development. Maintenance work is limited to:
+
+- confirmed defects within the existing mirror behavior;
+- documentation, packaging, licensing, and release corrections;
+- narrowly authorized changes to the stable release line.
+
+Compatibility across game releases and with other mods remains outside the
+product commitment. Any new capability or wider compatibility effort requires
+an explicit scope decision before implementation. This file is the sole active
+project-management record. Completed investigation, validation, and packaging
+documents are retained under [`docs/archive`](archive/) as historical evidence,
+not as an active backlog.
 
 ## Purpose
 
@@ -107,9 +127,9 @@ application outcome for focused runtime validation.
 The deterministic transform tests covered these invariants where no game
 runtime was required. Preview, placement, cancellation, switching, and
 invalid-placement behavior were verified through
-[the in-game RC matrix](RC-VALIDATION.md).
+[the archived in-game RC matrix](archive/RC-VALIDATION.md).
 
-## Implementation status
+## Completed implementation record
 
 1. The BepInEx plugin and local-reference build were scaffolded.
 2. The installed game assembly was examined and its deployment path was
@@ -129,13 +149,14 @@ invalid-placement behavior were verified through
    felt reliable and explicitly accepted the fix as complete.
 6. Release packaging, licensing, semantic version generation, and the official
    mirrored product icon were completed for the release candidate.
+7. The stable version line was set to `1.0.N`. Workflow build 8 produced the
+   `1.0.8` package, whose layout, metadata, user copy, icon, license, dependency,
+   and DLL identities were independently inspected and accepted for production.
 
 All planned release-candidate implementation and acceptance work was completed.
 No known implementation or validation blocker remained after the accepted
-0.4.7 package audit. The stable version transition was then authorized and
-`VERSION` was changed to the `1.0.N` line. Artifact inspection and Thunderstore
-publication remain release operations outside the implementation scope;
-publication is manual.
+0.4.7 package audit. The stable version transition and `1.0.8` artifact audit
+were then completed. The repository subsequently entered maintenance mode.
 
 ## Evidence record
 
@@ -143,4 +164,12 @@ The installed game assemblies and targeted runtime snapshots were examined to
 identify the authoritative blueprint deployment types, preview and placement
 paths, input seam, reform geometry, multi-area metadata, and connection slot
 poses. Confirmed members remain separated from inference in
-[ASSEMBLY_FINDINGS.md](ASSEMBLY_FINDINGS.md).
+[the archived assembly findings](archive/ASSEMBLY_FINDINGS.md).
+
+## Archived records
+
+- [Assembly examination and runtime evidence](archive/ASSEMBLY_FINDINGS.md)
+- [Release-candidate validation matrix](archive/RC-VALIDATION.md)
+- [Version 0.4.4 validation results](archive/RC-RESULTS-0.4.4.md)
+- [Version 0.4.5 input recheck](archive/RC-RESULTS-0.4.5.md)
+- [Thunderstore package contract and publication procedure](archive/THUNDERSTORE-PACKAGE.md)

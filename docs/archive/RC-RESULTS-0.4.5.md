@@ -1,5 +1,8 @@
 # Input reliability recheck: 0.4.5
 
+> Archived validation record. Active project management is maintained in
+> [PROJECT.md](../PROJECT.md).
+
 ## Test identity
 
 - Game version: Dyson Sphere Program `0.10.34`.

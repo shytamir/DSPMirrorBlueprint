@@ -1,5 +1,8 @@
 # Assembly examination: blueprint deployment
 
+> Archived historical evidence. Active project management is maintained in
+> [PROJECT.md](../PROJECT.md).
+
 ## Evidence scope
 
 This document records static findings from the locally installed Dyson Sphere

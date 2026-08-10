@@ -16,7 +16,7 @@ While placing a selected blueprint, the mod handles two mirror operations:
 The implementation is designed so mirroring affects the deployment preview and
 the resulting placement without modifying the saved source blueprint. The
 deployment data and integration path are documented in
-[docs/ASSEMBLY_FINDINGS.md](docs/ASSEMBLY_FINDINGS.md).
+[the archived assembly findings](docs/archive/ASSEMBLY_FINDINGS.md).
 
 ## Geometry diagnostics
 
@@ -87,7 +87,7 @@ numbers; the workflow run number supplies the patch. Stable releases use the
 BepInEx, assembly, and Thunderstore identities are generated from that single
 release version. Publishing is manual. Package layout, validation, and the
 publication procedure are documented in
-[docs/THUNDERSTORE-PACKAGE.md](docs/THUNDERSTORE-PACKAGE.md).
+[the archived package contract](docs/archive/THUNDERSTORE-PACKAGE.md).
 
 ## License
 
