@@ -115,7 +115,7 @@ jobs:
       - name: Upload installable package
         uses: actions/upload-artifact@v6
         with:
-          name: DSPMirrorBlueprint-${{ steps.version.outputs.package_version }}
+          name: DSPMirrorBlueprint-${{ steps.version.outputs.package_version }}-full
           path: artifacts/packages/DSPMirrorBlueprint-${{ steps.version.outputs.package_version }}.zip
           if-no-files-found: error
           retention-days: 30

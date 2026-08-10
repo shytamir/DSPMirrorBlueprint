@@ -27,4 +27,6 @@ packages those references or any game assembly.
 The workflow builds and runs the deterministic tests, verifies the generated
 BepInEx and assembly identity, creates the package, validates its exact file set,
 manifest, dependency, player README, icon, and DLL hash, then uploads the ZIP as
-a GitHub Actions artifact. It does not publish to Thunderstore automatically.
+a GitHub Actions artifact named `DSPMirrorBlueprint-M.m.p-full`. The nested,
+installable Thunderstore ZIP remains `DSPMirrorBlueprint-M.m.p.zip`. It does not
+publish to Thunderstore automatically.
