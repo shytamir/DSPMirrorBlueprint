@@ -6,9 +6,10 @@ deployment across either of its two planar axes.
 
 ## Status
 
-The project is at the design and scaffolding stage. No playable plugin has been
-implemented yet. The initial product contract and architecture direction are
-recorded in [docs/PROJECT.md](docs/PROJECT.md).
+The initial BepInEx plugin and local-reference build are scaffolded. The plugin
+currently logs that it loaded; blueprint mirroring is not implemented yet. The
+product contract and architecture direction are recorded in
+[docs/PROJECT.md](docs/PROJECT.md).
 
 ## Intended behavior
 
@@ -34,7 +35,7 @@ repository.
 
 ## Building
 
-The build is not scaffolded yet. The intended entry point will be:
+With Dyson Sphere Program installed in its default Steam location, run:
 
 ```text
 build.cmd
@@ -45,6 +46,10 @@ with an optional nonstandard game installation path:
 ```text
 build.cmd "D:\Games\Dyson Sphere Program"
 ```
+
+The release DLL is written to `bin\Release\DSPMirrorBlueprint.dll`. The build
+references BepInEx, Unity, and framework assemblies from the selected game
+installation; it does not copy those dependencies into the output.
 
 ## Scope
 

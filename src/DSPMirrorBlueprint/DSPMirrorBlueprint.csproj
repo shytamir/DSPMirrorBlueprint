@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <LangVersion>7.3</LangVersion>
+    <Nullable>disable</Nullable>
+    <AssemblyName>DSPMirrorBlueprint</AssemblyName>
+    <RootNamespace>DSPMirrorBlueprint</RootNamespace>
+    <GameRoot Condition="'$(GameRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program</GameRoot>
+    <GameManagedDir>$(GameRoot)\DSPGAME_Data\Managed</GameManagedDir>
+    <BepInExCoreDir>$(GameRoot)\BepInEx\core</BepInExCoreDir>
+    <FrameworkPathOverride Condition="'$(FrameworkPathOverride)' == '' and Exists('$(GameManagedDir)\mscorlib.dll')">$(GameManagedDir)</FrameworkPathOverride>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>$(MSBuildThisFileDirectory)..\..\bin\$(Configuration)\</OutputPath>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExCoreDir)\BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="netstandard">
+      <HintPath>$(GameManagedDir)\netstandard.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(GameManagedDir)\UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(GameManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="ValidateGameReferences" BeforeTargets="ResolveReferences">
+    <Error Condition="!Exists('$(BepInExCoreDir)\BepInEx.dll')" Text="BepInEx.dll was not found under GameRoot '$(GameRoot)'." />
+    <Error Condition="!Exists('$(GameManagedDir)\netstandard.dll')" Text="netstandard.dll was not found under GameRoot '$(GameRoot)'." />
+    <Error Condition="!Exists('$(GameManagedDir)\UnityEngine.dll')" Text="UnityEngine.dll was not found under GameRoot '$(GameRoot)'." />
+    <Error Condition="!Exists('$(GameManagedDir)\UnityEngine.CoreModule.dll')" Text="UnityEngine.CoreModule.dll was not found under GameRoot '$(GameRoot)'." />
+    <Error Condition="!Exists('$(GameManagedDir)\mscorlib.dll')" Text="The game's framework reference assemblies were not found under GameRoot '$(GameRoot)'." />
+  </Target>
+</Project>
