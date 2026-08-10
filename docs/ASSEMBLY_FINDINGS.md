@@ -291,8 +291,10 @@ mapping. Slot-pose diagnostics then identified the missing transform, and a
 follow-up check confirmed geometrically correct mirroring after slot remapping;
 the observed preview was unplaceable under the game's normal placement rules.
 
-The comprehensive preview and placement checks still required for 1.0 are
-defined in [RC-VALIDATION.md](RC-VALIDATION.md).
+The comprehensive preview and placement checks were defined in
+[RC-VALIDATION.md](RC-VALIDATION.md). The complete matrix was accepted for
+[version 0.4.4](RC-RESULTS-0.4.4.md), and the subsequent input fix was accepted
+after the [version 0.4.5 recheck](RC-RESULTS-0.4.5.md).
 
 The mod includes a disabled-by-default `F9` diagnostic that writes only the
 active cloned `BlueprintData` geometry: area fields, building item/model IDs,

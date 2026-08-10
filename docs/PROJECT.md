@@ -104,9 +104,10 @@ application outcome for focused runtime validation.
   state.
 - Invalid placements remain invalid; mirroring does not bypass game validation.
 
-The deterministic transform tests cover these invariants where no game runtime
-is required. Preview, placement, cancellation, switching, and invalid-placement
-behavior are verified through [the in-game RC matrix](RC-VALIDATION.md).
+The deterministic transform tests covered these invariants where no game
+runtime was required. Preview, placement, cancellation, switching, and
+invalid-placement behavior were verified through
+[the in-game RC matrix](RC-VALIDATION.md).
 
 ## Implementation status
 
@@ -120,9 +121,19 @@ behavior are verified through [the in-game RC matrix](RC-VALIDATION.md).
    missed input on both bindings remained an open 1.0 release concern. The
    direct paste-tick polling was subsequently replaced with DSP-captured
    override-key events. The candidate fix, deterministic coverage, and opt-in
-   trace were implemented; focused in-game revalidation remains required.
+   trace were implemented. The 0.4.5 input recheck confirmed 20 captured,
+   observed, and applied events for each binding with no failures, warnings, or
+   errors. A further 20 events per binding were captured while the active
+   placement preview was prompting for automatic foundation placement; that
+   prompt did not enter the blueprint paste hook. The tester reported that input
+   felt reliable and explicitly accepted the fix as complete.
 6. Release packaging, licensing, semantic version generation, and the official
    mirrored product icon were completed for the release candidate.
+
+All planned release-candidate implementation and acceptance work was completed.
+No known implementation or validation blocker remains recorded for the stable
+`1.0.N` line. The version change and manual publication have not yet been
+performed.
 
 ## Evidence record
 

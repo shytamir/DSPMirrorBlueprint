@@ -4,19 +4,7 @@ DSP Mirror Blueprint is a BepInEx 5 mod for Dyson Sphere Program. Its
 single purpose is to let a player mirror the blueprint currently selected for
 deployment across either of its two planar axes.
 
-## Status
-
-The project is a release candidate. Deployment-time preview integration,
-release packaging, and the official product icon were completed. The
-[0.4.4 validation run](docs/RC-RESULTS-0.4.4.md) reported all matrix rows as
-passing, but also exposed intermittent missed input on both bindings. A
-candidate fix was implemented using the game's captured override-key state;
-focused in-game revalidation is now the remaining input-reliability gate. While a
-blueprint is open for placement, press `K` to mirror it horizontally or
-`Shift+K` to mirror it vertically. The integration mutates only the detached
-deployment copy and requests the game's normal preview refresh; the saved source
-blueprint remains unchanged. The product contract and architecture are recorded
-in [docs/PROJECT.md](docs/PROJECT.md).
+Project status and implementation history are maintained in [docs/PROJECT.md](docs/PROJECT.md).
 
 ## Behavior
 
@@ -51,7 +39,7 @@ element is added.
 
 ## Input diagnostics
 
-An opt-in input trace is available to validate the missed-input fix. Set
+An opt-in input trace is available for troubleshooting input behavior. Set
 `EnableInputDiagnostics = true` under `Diagnostics` in the BepInEx configuration
 file above, restart the game, and exercise `K` and `Shift+K` while a blueprint is
 open for placement. For each accepted press, `LogOutput.log` reports when DSP's

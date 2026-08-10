@@ -39,6 +39,5 @@ yet satisfy RC-12's stricter condition that each keypress refresh the preview
 immediately. Static examination found that the implementation sampled Unity's
 render-frame key-down edge from the blueprint paste game tick. After this run, a
 candidate fix was implemented that registered both bindings with DSP's existing
-`VFInput` capture table and read its fixed-update key-down state. The concern
-remains open until the input recheck in
-[RC-VALIDATION.md](RC-VALIDATION.md) passes in game.
+`VFInput` capture table and read its fixed-update key-down state. The subsequent
+[0.4.5 input recheck](RC-RESULTS-0.4.5.md) was accepted and closed this concern.

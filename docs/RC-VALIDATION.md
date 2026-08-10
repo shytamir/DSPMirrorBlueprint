@@ -1,10 +1,13 @@
 # Release-candidate in-game validation
 
-Complete this matrix before changing `VERSION` to the stable `1.0` line. Record
-the game version, mod version, result, and a short note for every row. A test
+This matrix defined the in-game acceptance work required before changing
+`VERSION` to the stable `1.0` line. Record the game version, mod version, result,
+and a short note for every row when reusing it for regression testing. A test
 passes only when both the preview and the placed result match the expectation.
 
-The latest recorded run is [version 0.4.4](RC-RESULTS-0.4.4.md).
+The complete matrix was recorded for [version 0.4.4](RC-RESULTS-0.4.4.md), and
+the accepted input follow-up was recorded for
+[version 0.4.5](RC-RESULTS-0.4.5.md).
 
 ## Preparation
 
