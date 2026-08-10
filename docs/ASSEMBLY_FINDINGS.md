@@ -186,9 +186,11 @@ formulas, collect compact structural dumps from deliberately small blueprints:
 4. a blueprint with foundation reform data;
 5. a blueprint crossing a tropic boundary, producing multiple areas.
 
-The quickest safe dump is an opt-in diagnostic in the mod that logs only the
+The mod now includes a disabled-by-default `F9` diagnostic that writes only the
 active cloned `BlueprintData` geometry: area fields, building item/model IDs,
-offsets, angles, connection indices/slots, and reform rectangles. It should omit
-blueprint paths, descriptions, authorship, and unrelated game or save data.
-Comparing those small dumps before and after the game's existing rotations will
-establish angle conventions and provide fixtures for deterministic mirror tests.
+offsets, angles, connection indices/slots, and reform rectangles. It omits
+blueprint paths, descriptions, authorship, content, parameters, planet names,
+and unrelated game or save data. Comparing small dumps before and after the
+game's existing rotations will establish angle conventions and provide fixtures
+for deterministic mirror tests. Usage and output location are documented in the
+repository README.

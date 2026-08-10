@@ -31,6 +31,10 @@
       <HintPath>$(GameManagedDir)\UnityEngine.CoreModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(GameManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <Target Name="ValidateGameReferences" BeforeTargets="ResolveReferences">
@@ -38,6 +42,7 @@
     <Error Condition="!Exists('$(GameManagedDir)\netstandard.dll')" Text="netstandard.dll was not found under GameRoot '$(GameRoot)'." />
     <Error Condition="!Exists('$(GameManagedDir)\UnityEngine.dll')" Text="UnityEngine.dll was not found under GameRoot '$(GameRoot)'." />
     <Error Condition="!Exists('$(GameManagedDir)\UnityEngine.CoreModule.dll')" Text="UnityEngine.CoreModule.dll was not found under GameRoot '$(GameRoot)'." />
+    <Error Condition="!Exists('$(GameManagedDir)\UnityEngine.InputLegacyModule.dll')" Text="UnityEngine.InputLegacyModule.dll was not found under GameRoot '$(GameRoot)'." />
     <Error Condition="!Exists('$(GameManagedDir)\mscorlib.dll')" Text="The game's framework reference assemblies were not found under GameRoot '$(GameRoot)'." />
   </Target>
 </Project>

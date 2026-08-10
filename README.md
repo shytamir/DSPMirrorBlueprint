@@ -19,8 +19,27 @@ While placing a selected blueprint, the mod will provide two mirror operations:
 - mirror across the blueprint's vertical axis.
 
 Mirroring is intended to affect the deployment preview and the resulting
-placement without modifying the saved source blueprint. Exact controls and the
-game integration points still need to be confirmed against the installed game.
+placement without modifying the saved source blueprint. The deployment data and
+integration path are documented in
+[docs/ASSEMBLY_FINDINGS.md](docs/ASSEMBLY_FINDINGS.md).
+
+## Geometry diagnostics
+
+The development build includes an opt-in geometry dump for establishing mirror
+test fixtures. It is disabled by default. To use it:
+
+1. Set `EnableGeometryDump = true` under `Diagnostics` in
+   `BepInEx\config\com.shytamir.dspmirrorblueprint.cfg`.
+2. Open a blueprint for deployment in game.
+3. Press `F9`, or change `GeometryDumpKey` in the same configuration file.
+
+JSON files are written beneath
+`BepInEx\DSP-Mirror-Blueprint\Diagnostics`. They contain only the active cloned
+blueprint's area geometry, building item/model IDs, offsets, angles, connection
+indices and slots, and reform rectangles. Blueprint names, paths, descriptions,
+authors, building content and parameters, save identifiers, and planet names are
+not exported. The result is reported in `BepInEx\LogOutput.log`; no in-game
+visual element is added.
 
 ## Target environment
 
