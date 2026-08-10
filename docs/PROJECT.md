@@ -19,6 +19,32 @@ The terms `horizontal` and `vertical` describe the two axes of the blueprint's
 deployment plane. Their exact mapping to the game's coordinate system will be
 confirmed from runtime evidence before implementation.
 
+## Player interaction
+
+- Pressing `K` mirrors the selected blueprint across its horizontal axis.
+- Pressing `Shift+K` mirrors it across its vertical axis.
+- The transformed blueprint preview is the only player-facing indication of the
+  operation. No buttons, labels, notifications, or other visual elements are
+  required.
+- The bindings are fixed for the initial implementation; configurability is not
+  currently required.
+
+## Mirror origin
+
+Each operation mirrors around the centerline of the selected blueprint's bounds.
+Even and odd dimensions are both unambiguous under this rule:
+
+- for an odd number of grid positions, the centerline passes through the middle
+  position, which maps to itself;
+- for an even number of grid positions, the centerline lies halfway between the
+  two middle positions, which exchange places.
+
+For zero-based discrete coordinates, the corresponding mappings are
+`x' = width - 1 - x` and `y' = height - 1 - y`. Building footprints,
+orientations, and connections must be transformed consistently with those
+position mappings. Their exact representation is an implementation detail to be
+confirmed from game evidence.
+
 ## Non-goals
 
 - Editing or rewriting blueprint files.
@@ -26,6 +52,7 @@ confirmed from runtime evidence before implementation.
 - Managing, categorizing, importing, or exporting blueprints.
 - Changing construction rules or bypassing placement validation.
 - Supporting mod loaders other than BepInEx 5.
+- Compatibility guarantees across game releases or with other mods.
 
 ## Compatibility and technical constraints
 
@@ -81,15 +108,10 @@ exists.
 5. Verify placement behavior in game, including belts, sorters, orientations,
    connections, repeated mirroring, cancellation, and blueprint switching.
 
-## Decisions still open
+## Required implementation research
 
-- Keyboard bindings and whether they are configurable.
-- Whether small in-game control hints or buttons are necessary in addition to
-  shortcuts.
-- The exact origin used for mirroring even- and odd-sized blueprints.
-- The authoritative game types and methods for preview and placement integration.
-- Compatibility policy across Dyson Sphere Program releases and other blueprint
-  mods.
-
-Open decisions should be resolved from game behavior and assembly evidence, then
-recorded here before they become implementation assumptions.
+Before game integration begins, inspect the installed game assemblies and
+runtime behavior to identify the authoritative blueprint deployment types,
+preview generation path, placement confirmation path, and existing input or
+rotation handling. Record confirmed members separately from inferred behavior;
+this research is an implementation prerequisite, not a product decision.
