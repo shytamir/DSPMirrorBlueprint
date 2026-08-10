@@ -113,6 +113,8 @@ behavior are verified through [the in-game RC matrix](RC-VALIDATION.md).
 4. Deployment-time input and preview integration were implemented.
 5. Targeted runtime fixtures exposed and confirmed the sorter slot-remapping
    fix. Comprehensive 1.0 acceptance remains tracked by the RC matrix.
+6. Release packaging, licensing, semantic version generation, and the official
+   mirrored product icon were completed for the release candidate.
 
 ## Evidence record
 

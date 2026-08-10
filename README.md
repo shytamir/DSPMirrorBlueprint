@@ -6,8 +6,9 @@ deployment across either of its two planar axes.
 
 ## Status
 
-The project is a release candidate. Deployment-time preview integration and
-targeted in-game checks are complete; the full
+The project is a release candidate. Deployment-time preview integration,
+targeted in-game checks, release packaging, and the official product icon are
+complete; the full
 [1.0 validation matrix](docs/RC-VALIDATION.md) remains the release gate. While a
 blueprint is open for placement, press `K` to mirror it horizontally or
 `Shift+K` to mirror it vertically. The integration mutates only the detached

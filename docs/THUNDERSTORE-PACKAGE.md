@@ -14,9 +14,9 @@ BepInEx/
 ```
 
 The three required Thunderstore files and the Apache 2.0 `LICENSE` are at the ZIP
-root. The icon is a temporary 256 by 256 PNG and remains scheduled for a later
-release-candidate pass. The package declares `xiaoye97-BepInEx-5.4.17` as its
-only dependency.
+root. The official 256 by 256 product icon depicts the blueprint mirror axis and
+uses horizontally mirrored red trademark glyphs. The package declares
+`xiaoye97-BepInEx-5.4.17` as its only dependency.
 
 Release automation runs on each push to `main` or manual dispatch. `VERSION`
 stores `MAJOR` and `MINOR`; the GitHub Actions run number supplies `PATCH`.
