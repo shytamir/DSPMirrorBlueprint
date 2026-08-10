@@ -1,0 +1,9 @@
+{
+  "name": "DSPMirrorBlueprint",
+  "version_number": "{{VERSION_NUMBER}}",
+  "website_url": "https://github.com/shytamir/DSPMirrorBlueprint",
+  "description": "Mirror the active Dyson Sphere Program blueprint horizontally or vertically while deploying it.",
+  "dependencies": [
+    "xiaoye97-BepInEx-5.4.17"
+  ]
+}

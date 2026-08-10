@@ -8,13 +8,14 @@
     <GameRoot Condition="'$(GameRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program</GameRoot>
     <GameManagedDir>$(GameRoot)\DSPGAME_Data\Managed</GameManagedDir>
     <BepInExCoreDir>$(GameRoot)\BepInEx\core</BepInExCoreDir>
-    <FrameworkPathOverride Condition="'$(FrameworkPathOverride)' == '' and Exists('$(GameManagedDir)\mscorlib.dll')">$(GameManagedDir)</FrameworkPathOverride>
+    <UseCiReferences Condition="'$(UseCiReferences)' == ''">false</UseCiReferences>
+    <FrameworkPathOverride Condition="'$(UseCiReferences)' != 'true' and '$(FrameworkPathOverride)' == '' and Exists('$(GameManagedDir)\mscorlib.dll')">$(GameManagedDir)</FrameworkPathOverride>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>$(MSBuildThisFileDirectory)..\..\bin\$(Configuration)\</OutputPath>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseCiReferences)' != 'true'">
     <Reference Include="BepInEx">
       <HintPath>$(BepInExCoreDir)\BepInEx.dll</HintPath>
       <Private>false</Private>
@@ -41,7 +42,27 @@
     </Reference>
   </ItemGroup>
 
-  <Target Name="ValidateGameReferences" BeforeTargets="ResolveReferences">
+  <ItemGroup Condition="'$(UseCiReferences)' == 'true'">
+    <Reference Include="BepInEx">
+      <HintPath>$(CiBepInExCoreDir)\BepInEx.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(CiBepInExCoreDir)\0Harmony.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472"
+                      Version="1.0.3"
+                      PrivateAssets="all" />
+    <PackageReference Include="UnityEngine.Modules"
+                      Version="2021.3.33"
+                      PrivateAssets="all"
+                      ExcludeAssets="runtime" />
+  </ItemGroup>
+
+  <Target Name="ValidateGameReferences"
+          BeforeTargets="ResolveReferences"
+          Condition="'$(UseCiReferences)' != 'true'">
     <Error Condition="!Exists('$(BepInExCoreDir)\BepInEx.dll')" Text="BepInEx.dll was not found under GameRoot '$(GameRoot)'." />
     <Error Condition="!Exists('$(BepInExCoreDir)\0Harmony.dll')" Text="0Harmony.dll was not found under GameRoot '$(GameRoot)'." />
     <Error Condition="!Exists('$(GameManagedDir)\netstandard.dll')" Text="netstandard.dll was not found under GameRoot '$(GameRoot)'." />
@@ -49,5 +70,12 @@
     <Error Condition="!Exists('$(GameManagedDir)\UnityEngine.CoreModule.dll')" Text="UnityEngine.CoreModule.dll was not found under GameRoot '$(GameRoot)'." />
     <Error Condition="!Exists('$(GameManagedDir)\UnityEngine.InputLegacyModule.dll')" Text="UnityEngine.InputLegacyModule.dll was not found under GameRoot '$(GameRoot)'." />
     <Error Condition="!Exists('$(GameManagedDir)\mscorlib.dll')" Text="The game's framework reference assemblies were not found under GameRoot '$(GameRoot)'." />
+  </Target>
+
+  <Target Name="ValidateCiReferences"
+          BeforeTargets="ResolveReferences"
+          Condition="'$(UseCiReferences)' == 'true'">
+    <Error Condition="!Exists('$(CiBepInExCoreDir)\BepInEx.dll')" Text="CI BepInEx.dll was not found under CiBepInExCoreDir '$(CiBepInExCoreDir)'." />
+    <Error Condition="!Exists('$(CiBepInExCoreDir)\0Harmony.dll')" Text="CI 0Harmony.dll was not found under CiBepInExCoreDir '$(CiBepInExCoreDir)'." />
   </Target>
 </Project>

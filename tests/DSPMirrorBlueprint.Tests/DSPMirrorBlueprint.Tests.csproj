@@ -7,7 +7,8 @@
     <AssemblyName>DSPMirrorBlueprint.Tests</AssemblyName>
     <GameRoot Condition="'$(GameRoot)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Dyson Sphere Program</GameRoot>
     <GameManagedDir>$(GameRoot)\DSPGAME_Data\Managed</GameManagedDir>
-    <FrameworkPathOverride Condition="'$(FrameworkPathOverride)' == '' and Exists('$(GameManagedDir)\mscorlib.dll')">$(GameManagedDir)</FrameworkPathOverride>
+    <UseCiReferences Condition="'$(UseCiReferences)' == ''">false</UseCiReferences>
+    <FrameworkPathOverride Condition="'$(UseCiReferences)' != 'true' and '$(FrameworkPathOverride)' == '' and Exists('$(GameManagedDir)\mscorlib.dll')">$(GameManagedDir)</FrameworkPathOverride>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <Deterministic>true</Deterministic>
@@ -17,7 +18,15 @@
     <ProjectReference Include="..\..\src\DSPMirrorBlueprint\DSPMirrorBlueprint.csproj" />
   </ItemGroup>
 
-  <Target Name="ValidateGameFramework" BeforeTargets="ResolveReferences">
+  <ItemGroup Condition="'$(UseCiReferences)' == 'true'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net472"
+                      Version="1.0.3"
+                      PrivateAssets="all" />
+  </ItemGroup>
+
+  <Target Name="ValidateGameFramework"
+          BeforeTargets="ResolveReferences"
+          Condition="'$(UseCiReferences)' != 'true'">
     <Error Condition="!Exists('$(GameManagedDir)\mscorlib.dll')" Text="The game's framework reference assemblies were not found under GameRoot '$(GameRoot)'." />
   </Target>
 </Project>

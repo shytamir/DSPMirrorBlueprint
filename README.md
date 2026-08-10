@@ -74,6 +74,14 @@ DLL to `bin\Release\DSPMirrorBlueprint.dll`. It references BepInEx, Unity, and
 framework assemblies from the selected game installation; it does not copy
 those dependencies into the output.
 
+## Release package
+
+Pushing a `vM.m.p` tag, or manually running the release workflow with a matching
+version, builds and tests the mod using pinned public compile references and
+uploads a Thunderstore-compatible ZIP as a GitHub Actions artifact. The version
+must match `Plugin.PluginVersion`. Package layout and validation are documented
+in [docs/THUNDERSTORE-PACKAGE.md](docs/THUNDERSTORE-PACKAGE.md).
+
 ## Scope
 
 This project is deliberately narrow. General blueprint editing, rotation,

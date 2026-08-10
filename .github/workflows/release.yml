@@ -1,0 +1,136 @@
+name: Build Thunderstore release package
+
+run-name: Package ${{ github.ref_name }} from ${{ github.sha }}
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Package version matching Plugin.PluginVersion (M.m.p)
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dsp-mirror-blueprint-release
+  cancel-in-progress: false
+
+jobs:
+  build-test-package:
+    name: Build, test, and package
+    runs-on: windows-latest
+
+    steps:
+      - name: Pull source
+        uses: actions/checkout@v5
+
+      - name: Install .NET SDK
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Resolve and validate release version
+        id: version
+        shell: pwsh
+        run: |
+          if ('${{ github.event_name }}' -eq 'workflow_dispatch') {
+            $version = '${{ inputs.version }}'
+          }
+          else {
+            $tag = '${{ github.ref_name }}'
+            if (-not $tag.StartsWith('v')) {
+              throw "Release tag must start with v: $tag"
+            }
+            $version = $tag.Substring(1)
+          }
+          if ($version -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Release version is invalid: $version"
+          }
+          $pluginSource = Get-Content -Raw `
+            'src/DSPMirrorBlueprint/Plugin.cs'
+          if ($pluginSource -notmatch `
+              'PluginVersion\s*=\s*"([^"]+)"') {
+            throw 'PluginVersion was not found.'
+          }
+          if ($Matches[1] -cne $version) {
+            throw "PluginVersion $($Matches[1]) does not match $version."
+          }
+          "PACKAGE_VERSION=$version" >> $env:GITHUB_ENV
+          "package_version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Download BepInEx 5.4.17 compile references
+        shell: pwsh
+        run: |
+          $archive = Join-Path $env:RUNNER_TEMP `
+            'xiaoye97-BepInEx-5.4.17.zip'
+          $root = Join-Path $env:RUNNER_TEMP 'bepinex-reference'
+          $uri = 'https://thunderstore.io/package/download/' +
+            'xiaoye97/BepInEx/5.4.17/'
+          Invoke-WebRequest -Uri $uri -OutFile $archive
+          Expand-Archive -LiteralPath $archive -DestinationPath $root
+          $core = Join-Path $root 'BepInExPack\BepInEx\core'
+          foreach ($name in @('BepInEx.dll', '0Harmony.dll')) {
+            if (-not (Test-Path -LiteralPath (Join-Path $core $name))) {
+              throw "Compile reference was not found: $name"
+            }
+          }
+          "CI_BEPINEX_CORE_DIR=$core" >> $env:GITHUB_ENV
+
+      - name: Restore pinned CI references
+        shell: pwsh
+        run: |
+          dotnet restore `
+            tests/DSPMirrorBlueprint.Tests/DSPMirrorBlueprint.Tests.csproj `
+            -p:UseCiReferences=true `
+            "-p:CiBepInExCoreDir=$env:CI_BEPINEX_CORE_DIR"
+
+      - name: Build and run deterministic tests
+        shell: pwsh
+        run: |
+          dotnet build `
+            tests/DSPMirrorBlueprint.Tests/DSPMirrorBlueprint.Tests.csproj `
+            --configuration Release `
+            --no-restore `
+            -p:UseCiReferences=true `
+            "-p:CiBepInExCoreDir=$env:CI_BEPINEX_CORE_DIR"
+          ./tests/DSPMirrorBlueprint.Tests/bin/Release/DSPMirrorBlueprint.Tests.exe
+
+      - name: Build release DLL
+        shell: pwsh
+        run: |
+          $output = Join-Path $PWD 'artifacts\build'
+          dotnet build `
+            src/DSPMirrorBlueprint/DSPMirrorBlueprint.csproj `
+            --configuration Release `
+            --no-restore `
+            -p:UseCiReferences=true `
+            "-p:CiBepInExCoreDir=$env:CI_BEPINEX_CORE_DIR" `
+            "-p:Version=$env:PACKAGE_VERSION" `
+            "-p:AssemblyVersion=${env:PACKAGE_VERSION}.0" `
+            "-p:FileVersion=${env:PACKAGE_VERSION}.0" `
+            -p:ContinuousIntegrationBuild=true `
+            "-p:OutputPath=$output"
+
+      - name: Build and validate Thunderstore package
+        shell: pwsh
+        run: |
+          ./scripts/New-ThunderstorePackage.ps1 `
+            -DllPath 'artifacts/build/DSPMirrorBlueprint.dll' `
+            -VersionNumber $env:PACKAGE_VERSION
+          ./scripts/Test-ThunderstorePackage.ps1 `
+            -PackagePath "artifacts/packages/DSPMirrorBlueprint-$env:PACKAGE_VERSION.zip" `
+            -ExpectedVersion $env:PACKAGE_VERSION `
+            -ExpectedDllPath 'artifacts/build/DSPMirrorBlueprint.dll'
+
+      - name: Upload installable package
+        uses: actions/upload-artifact@v6
+        with:
+          name: DSPMirrorBlueprint-${{ steps.version.outputs.package_version }}
+          path: artifacts/packages/DSPMirrorBlueprint-${{ steps.version.outputs.package_version }}.zip
+          if-no-files-found: error
+          retention-days: 30
