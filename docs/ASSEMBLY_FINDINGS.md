@@ -198,6 +198,37 @@ rotation changes `BuildTool_BlueprintPaste.yaw`. Capturing the same active
 blueprint after ordinary deployment rotation would therefore produce the same
 blueprint geometry and would not add orientation evidence.
 
+A second snapshot from the same plugin and assembly versions contains 146
+buildings, two areas, and two reform rectangles. Its top-level drag bounds are
+`27 x 15`. The areas are:
+
+- area `0`: root, `27 x 5`, 160 segments, anchor `(0, 0)`;
+- area `1`: child of area `0`, `21 x 10`, 120 segments, anchor `(0, 5)`.
+
+This confirms that a tropic-crossing blueprint can join areas with different
+longitude segment counts through `parentIndex` and local anchor offsets. It also
+shows why area metadata must be retained by the internal model even if the first
+transform implementation operates in the combined drag bounds.
+
+Both reform rectangles belong to area `0`:
+
+- `(x=19, y=3, width=3, height=2, data=32)`;
+- `(x=25, y=3, width=1, height=2, data=32)`.
+
+This confirms the reform rectangle schema needed by the transform. For a
+rectangle within bounds, vertical reflection moves its origin to
+`width - x - rectangleWidth`, while horizontal reflection uses
+`height - y - rectangleHeight`; rectangle dimensions and `data` remain intact.
+
+All buildings and both reform rectangles report `areaIndex = 0`, while building
+`y` coordinates span approximately `0..14`, beyond area `0`'s height of `5` and
+across the combined drag height of `15`. The fixture therefore proves the
+multi-area hierarchy but does not support treating every element coordinate as
+strictly local to the dimensions of its referenced area. The first internal
+transform should preserve area metadata and element area indices while using an
+explicit aggregate transform plane. Area-anchor rewriting should wait for an
+in-game mirrored preview to show that it is necessary.
+
 ## Transform responsibilities inferred from the data flow
 
 The following are implementation conclusions, not game-provided mirror rules:
@@ -221,13 +252,13 @@ These rules should be implemented as a deterministic transform over the cloned
 ## Runtime evidence status
 
 Static IL confirms which values participate, but it does not prove the semantic
-meaning of every port index or multi-area anchor. The captured fixture covers
-cardinal directions, connected belts, two-endpoint sorters, and several other
-building models. Remaining focused fixtures are:
+meaning of every port index or all multi-area anchor behavior. The captured
+fixtures cover cardinal directions, connected belts, two-endpoint sorters,
+several other building models, reform rectangles, and a two-area tropic
+crossing. Remaining runtime work is:
 
-1. a blueprint with foundation reform data;
-2. a blueprint crossing a tropic boundary, producing multiple areas;
-3. if initial in-game mirroring exposes ambiguity, a deliberately small paired
+1. verify the first mirrored preview and placement against the two-area fixture;
+2. if that exposes ambiguity, capture a deliberately small paired
    original/manually mirrored fixture for the affected building or port layout.
 
 The mod now includes a disabled-by-default `F9` diagnostic that writes only the
