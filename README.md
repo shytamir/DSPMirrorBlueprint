@@ -7,9 +7,11 @@ deployment across either of its two planar axes.
 ## Status
 
 The project is a release candidate. Deployment-time preview integration,
-targeted in-game checks, release packaging, and the official product icon are
-complete; the full
-[1.0 validation matrix](docs/RC-VALIDATION.md) remains the release gate. While a
+release packaging, and the official product icon were completed. The
+[0.4.4 validation run](docs/RC-RESULTS-0.4.4.md) reported all matrix rows as
+passing, but also exposed intermittent missed input on both bindings. A
+candidate fix was implemented using the game's captured override-key state;
+focused in-game revalidation is now the remaining input-reliability gate. While a
 blueprint is open for placement, press `K` to mirror it horizontally or
 `Shift+K` to mirror it vertically. The integration mutates only the detached
 deployment copy and requests the game's normal preview refresh; the saved source
@@ -46,6 +48,16 @@ used by that blueprint. Blueprint names, paths, descriptions, authors, building
 content and parameters, prefab paths, save identifiers, and planet names are not
 exported. The result is reported in `BepInEx\LogOutput.log`; no in-game visual
 element is added.
+
+## Input diagnostics
+
+An opt-in input trace is available to validate the missed-input fix. Set
+`EnableInputDiagnostics = true` under `Diagnostics` in the BepInEx configuration
+file above, restart the game, and exercise `K` and `Shift+K` while a blueprint is
+open for placement. For each accepted press, `LogOutput.log` reports when DSP's
+`VFInput` captured the binding, when the blueprint paste hook observed that
+captured event, and whether the mirror was applied. The trace is disabled by
+default and records no blueprint or save data.
 
 ## Target environment
 

@@ -12,7 +12,11 @@ namespace DSPMirrorBlueprint
         private static ManualLogSource logger;
         private static int handledFrame = -1;
 
-        public static bool Install(Harmony harmony, ManualLogSource log, out string error)
+        public static bool Install(
+            Harmony harmony,
+            ManualLogSource log,
+            Func<bool> inputDiagnosticsEnabled,
+            out string error)
         {
             logger = log;
             error = null;
@@ -33,6 +37,14 @@ namespace DSPMirrorBlueprint
                 }
 
                 harmony.Patch(determinRotate, postfix: new HarmonyMethod(postfix));
+                if (!GameInputBridge.Install(
+                    harmony,
+                    log,
+                    inputDiagnosticsEnabled,
+                    out error))
+                {
+                    return false;
+                }
                 return true;
             }
             catch (Exception ex)
@@ -42,27 +54,55 @@ namespace DSPMirrorBlueprint
             }
         }
 
+        public static void Uninstall()
+        {
+            GameInputBridge.Uninstall();
+            handledFrame = -1;
+        }
+
         private static void DeterminRotatePostfix(object __instance, ref bool __result)
         {
-            if (!Input.GetKeyDown(KeyCode.K) || handledFrame == Time.frameCount)
+            BlueprintMirrorAxis axis;
+            if (!GameInputBridge.TryGetMirrorAxis(
+                Time.frameCount,
+                ref handledFrame,
+                out axis))
+            {
                 return;
-
-            handledFrame = Time.frameCount;
-            bool shift = Input.GetKey(KeyCode.LeftShift) ||
-                Input.GetKey(KeyCode.RightShift);
-            BlueprintMirrorAxis axis = shift
-                ? BlueprintMirrorAxis.Vertical
-                : BlueprintMirrorAxis.Horizontal;
+            }
 
             string error;
             if (BlueprintRuntimeAdapter.TryApply(__instance, axis, out error))
             {
                 __result = true;
+                GameInputBridge.LogMirrorResult(axis, true, null);
                 return;
             }
 
+            GameInputBridge.LogMirrorResult(axis, false, error);
             if (logger != null)
                 logger.LogWarning("Blueprint mirror skipped: " + error);
+        }
+    }
+
+    internal static class MirrorInputDecision
+    {
+        public static bool TrySelect(
+            bool horizontalDown,
+            bool verticalDown,
+            int frame,
+            ref int handledFrame,
+            out BlueprintMirrorAxis axis)
+        {
+            axis = BlueprintMirrorAxis.Horizontal;
+            if (handledFrame == frame || (!horizontalDown && !verticalDown))
+                return false;
+
+            handledFrame = frame;
+            axis = verticalDown
+                ? BlueprintMirrorAxis.Vertical
+                : BlueprintMirrorAxis.Horizontal;
+            return true;
         }
     }
 

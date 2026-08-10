@@ -71,7 +71,8 @@ consistently with those position mappings.
 The smallest useful design has three boundaries:
 
 1. **Plugin and input layer**: owns the BepInEx entry point, lifecycle, logging,
-   configuration, and mirror commands.
+   configuration, mirror commands, and registration in DSP's existing
+   override-key capture table.
 2. **Game integration layer**: observes the active blueprint deployment state,
    reads and updates the placement preview through narrowly scoped adapters, and
    isolates version-sensitive game members.
@@ -88,7 +89,10 @@ to and from orientation vectors. Slots are remapped by reflecting their
 prefab-local poses, including orientation to disambiguate coincident positions.
 A Harmony postfix on `BuildTool_BlueprintPaste.DeterminRotate()` handles the
 fixed input and asks the game's existing path to refresh the preview after each
-successful mirror.
+successful mirror. The input layer reads `K` and exact `Shift+K` key-down events
+from DSP's `VFInput` snapshot rather than polling Unity input from the paste-tool
+tick. A disabled-by-default trace logs capture, paste-hook observation, and
+application outcome for focused runtime validation.
 
 ## Release acceptance invariants
 
@@ -112,7 +116,11 @@ behavior are verified through [the in-game RC matrix](RC-VALIDATION.md).
 3. A minimal transform model and deterministic tests were implemented.
 4. Deployment-time input and preview integration were implemented.
 5. Targeted runtime fixtures exposed and confirmed the sorter slot-remapping
-   fix. Comprehensive 1.0 acceptance remains tracked by the RC matrix.
+   fix. The 0.4.4 RC matrix was reported as passing all rows; intermittent
+   missed input on both bindings remained an open 1.0 release concern. The
+   direct paste-tick polling was subsequently replaced with DSP-captured
+   override-key events. The candidate fix, deterministic coverage, and opt-in
+   trace were implemented; focused in-game revalidation remains required.
 6. Release packaging, licensing, semantic version generation, and the official
    mirrored product icon were completed for the release candidate.
 

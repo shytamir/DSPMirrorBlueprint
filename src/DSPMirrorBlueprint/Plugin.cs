@@ -15,6 +15,7 @@ namespace DSPMirrorBlueprint
 
         private ConfigEntry<bool> enableGeometryDump;
         private ConfigEntry<KeyboardShortcut> geometryDumpKey;
+        private ConfigEntry<bool> enableInputDiagnostics;
         private Harmony harmony;
 
         private void Awake()
@@ -31,12 +32,19 @@ namespace DSPMirrorBlueprint
                 new KeyboardShortcut(KeyCode.F9),
                 "Save active blueprint geometry while blueprint deployment is open."
             );
+            enableInputDiagnostics = Config.Bind(
+                "Diagnostics",
+                "EnableInputDiagnostics",
+                false,
+                "Log DSP-captured K and Shift+K mirror events and their deployment result."
+            );
 
             harmony = new Harmony(PluginGuid);
             string mirrorError;
             bool mirrorInstalled = BlueprintRuntimeMirror.Install(
                 harmony,
                 Logger,
+                () => enableInputDiagnostics.Value,
                 out mirrorError);
 
             if (!mirrorInstalled)
@@ -48,11 +56,14 @@ namespace DSPMirrorBlueprint
                     ? "Press K for horizontal mirror or Shift+K for vertical mirror. "
                     : String.Empty) +
                 "Geometry dumps are " +
-                (enableGeometryDump.Value ? "enabled on " + geometryDumpKey.Value + "." : "disabled."));
+                (enableGeometryDump.Value ? "enabled on " + geometryDumpKey.Value + "." : "disabled.") +
+                " Input diagnostics are " +
+                (enableInputDiagnostics.Value ? "enabled." : "disabled."));
         }
 
         private void OnDestroy()
         {
+            BlueprintRuntimeMirror.Uninstall();
             if (harmony != null) harmony.UnpatchSelf();
         }
 

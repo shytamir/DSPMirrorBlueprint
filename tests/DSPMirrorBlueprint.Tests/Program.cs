@@ -21,7 +21,9 @@ namespace DSPMirrorBlueprint.Tests
                 AreaMetadataAndTopologyRemainStable,
                 MultiAreaFixtureUsesAggregateBounds,
                 ReformRectanglesReflectAtBounds,
-                InvalidBoundsAreRejected
+                InvalidBoundsAreRejected,
+                CapturedInputSelectsExpectedAxis,
+                CapturedInputIsHandledOncePerFrame
             };
 
             try
@@ -406,6 +408,46 @@ namespace DSPMirrorBlueprint.Tests
             }
 
             if (!threw) throw new InvalidOperationException("invalid bounds were accepted");
+        }
+
+        private static void CapturedInputSelectsExpectedAxis()
+        {
+            int handledFrame = -1;
+            BlueprintMirrorAxis axis;
+            if (!MirrorInputDecision.TrySelect(
+                true, false, 10, ref handledFrame, out axis))
+            {
+                throw new InvalidOperationException("captured K was ignored");
+            }
+            Equal((int)BlueprintMirrorAxis.Horizontal, (int)axis, "K axis");
+
+            if (!MirrorInputDecision.TrySelect(
+                false, true, 11, ref handledFrame, out axis))
+            {
+                throw new InvalidOperationException("captured Shift+K was ignored");
+            }
+            Equal((int)BlueprintMirrorAxis.Vertical, (int)axis, "Shift+K axis");
+        }
+
+        private static void CapturedInputIsHandledOncePerFrame()
+        {
+            int handledFrame = -1;
+            BlueprintMirrorAxis axis;
+            if (!MirrorInputDecision.TrySelect(
+                true, false, 20, ref handledFrame, out axis))
+            {
+                throw new InvalidOperationException("first captured input was ignored");
+            }
+            if (MirrorInputDecision.TrySelect(
+                true, false, 20, ref handledFrame, out axis))
+            {
+                throw new InvalidOperationException("captured input repeated in one frame");
+            }
+            if (!MirrorInputDecision.TrySelect(
+                true, false, 21, ref handledFrame, out axis))
+            {
+                throw new InvalidOperationException("next-frame captured input was ignored");
+            }
         }
 
         private static BlueprintTransformModel CreateModel()

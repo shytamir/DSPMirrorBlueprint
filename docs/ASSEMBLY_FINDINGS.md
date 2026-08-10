@@ -89,9 +89,37 @@ No blueprint-specific mirror method exists in the examined assembly. The
 mirror-named UI methods found by the scan belong to the mecha editor and are
 unrelated.
 
-The fixed input can be read through Unity's legacy input API inside this hook.
-The paste-tool call site already scopes handling to blueprint deployment; no
-global `K` action needs to be added to `VFInput`.
+## Confirmed game input capture
+
+The first deployment integration read `UnityEngine.Input.GetKeyDown(K)` inside
+`DeterminRotate()`. RC testing showed that this render-frame edge could be
+missed by the paste tool's game-tick call.
+
+The examined assembly provides an existing capture path in `VFInput`:
+
+- `VFInput.override_keys` is a 256-entry `CombineKey[]` used for configurable
+  exact modifier combinations;
+- `VFInput.OnUpdate()` samples each non-null combination into
+  `axis_combine_key.press`;
+- `VFInput.OnFixedUpdate()` derives `down`, `up`, and `eventFrame` from that
+  captured press state;
+- `CombineKey` modifier bit `1` represents Shift, and combinations whose
+  modifier value is below `8` use exact modifier matching;
+- the 45-entry `simple_buttons` array does not include key code `107` (`K`).
+
+The corrected integration reserves two currently unused override slots, one
+for exact `K` and one for exact `Shift+K`. Registration is restored after
+`VFInput.Init()` and `GameOption.Apply()` because those methods initialize or
+copy the game's override table. The deployment hook reads only the resulting
+`axis_combine_key.down` and `eventFrame` arrays. Slot selection proceeds from
+the high end of the table, never overwrites a non-null entry, and releases only
+bindings still owned by this plugin.
+
+This retains DSP's own keyboard sampling, modifier matching, input-field
+suppression, and fixed-update edge generation. The paste-tool call site still
+scopes the action to blueprint deployment. A disabled-by-default diagnostic
+logs the DSP capture event, its observation by the paste hook, and the transform
+result without inspecting blueprint or save content.
 
 ## Confirmed blueprint data surface
 
