@@ -82,11 +82,11 @@ The smallest useful design has three boundaries:
 The mirror transform is expressed as game-independent data operations over an
 explicit aggregate transform plane. It retains area metadata and topology,
 reflects both endpoint positions and orientation frames, and transforms reform
-rectangle origins without rounding. Focused deterministic tests cover both axes
-and repeated transforms without launching the game. Runtime adapters remain
-responsible for converting game Euler rotations to and from orientation vectors.
-Harmony patches or other runtime hooks should use the narrow integration point
-identified in the assembly findings.
+rectangle and cursor origins without rounding. Focused deterministic tests cover
+both axes and repeated transforms without launching the game. The runtime adapter
+converts game Euler rotations to and from orientation vectors. A Harmony postfix
+on `BuildTool_BlueprintPaste.DeterminRotate()` handles the fixed input and asks
+the game's existing path to refresh the preview after each successful mirror.
 
 ## Behavioral invariants to establish
 

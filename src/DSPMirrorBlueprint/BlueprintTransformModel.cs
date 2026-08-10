@@ -67,6 +67,8 @@ namespace DSPMirrorBlueprint
     {
         public int Width;
         public int Height;
+        public int CursorOffsetX;
+        public int CursorOffsetY;
         public readonly List<BlueprintTransformArea> Areas =
             new List<BlueprintTransformArea>();
         public readonly List<BlueprintTransformBuilding> Buildings =
@@ -110,6 +112,11 @@ namespace DSPMirrorBlueprint
                 else
                     reform.Y = model.Height - reform.Y - reform.Height;
             }
+
+            if (axis == BlueprintMirrorAxis.Vertical)
+                model.CursorOffsetX = model.Width - 1 - model.CursorOffsetX;
+            else
+                model.CursorOffsetY = model.Height - 1 - model.CursorOffsetY;
         }
 
         private static BlueprintVector3 ReflectPosition(

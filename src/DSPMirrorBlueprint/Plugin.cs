@@ -1,5 +1,6 @@
 using BepInEx;
 using BepInEx.Configuration;
+using HarmonyLib;
 using System;
 using UnityEngine;
 
@@ -10,10 +11,11 @@ namespace DSPMirrorBlueprint
     {
         public const string PluginGuid = "com.shytamir.dspmirrorblueprint";
         public const string PluginName = "DSP Mirror Blueprint";
-        public const string PluginVersion = "0.2.0";
+        public const string PluginVersion = "0.3.0";
 
         private ConfigEntry<bool> enableGeometryDump;
         private ConfigEntry<KeyboardShortcut> geometryDumpKey;
+        private Harmony harmony;
 
         private void Awake()
         {
@@ -30,9 +32,28 @@ namespace DSPMirrorBlueprint
                 "Save active blueprint geometry while blueprint deployment is open."
             );
 
+            harmony = new Harmony(PluginGuid);
+            string mirrorError;
+            bool mirrorInstalled = BlueprintRuntimeMirror.Install(
+                harmony,
+                Logger,
+                out mirrorError);
+
+            if (!mirrorInstalled)
+                Logger.LogError("Blueprint mirroring is unavailable: " + mirrorError);
+
             Logger.LogInfo(
-                PluginName + " " + PluginVersion + " loaded. Geometry dumps are " +
+                PluginName + " " + PluginVersion + " loaded. " +
+                (mirrorInstalled
+                    ? "Press K for horizontal mirror or Shift+K for vertical mirror. "
+                    : String.Empty) +
+                "Geometry dumps are " +
                 (enableGeometryDump.Value ? "enabled on " + geometryDumpKey.Value + "." : "disabled."));
+        }
+
+        private void OnDestroy()
+        {
+            if (harmony != null) harmony.UnpatchSelf();
         }
 
         private void Update()

@@ -58,6 +58,8 @@ namespace DSPMirrorBlueprint.Tests
             Equal(0.5f, building.Orientation2.Up.Z, "horizontal endpoint up z");
             Equal(1, model.Reforms[0].X, "horizontal reform x");
             Equal(3, model.Reforms[0].Y, "horizontal reform y");
+            Equal(2, model.CursorOffsetX, "horizontal cursor x");
+            Equal(1, model.CursorOffsetY, "horizontal cursor y");
         }
 
         private static void VerticalMirrorReflectsGeometry()
@@ -86,6 +88,8 @@ namespace DSPMirrorBlueprint.Tests
             Equal(0.5f, building.Orientation2.Up.Z, "vertical endpoint up z");
             Equal(2, model.Reforms[0].X, "vertical reform x");
             Equal(1, model.Reforms[0].Y, "vertical reform y");
+            Equal(3, model.CursorOffsetX, "vertical cursor x");
+            Equal(4, model.CursorOffsetY, "vertical cursor y");
         }
 
         private static void DoubleMirrorRestoresOriginal()
@@ -110,6 +114,8 @@ namespace DSPMirrorBlueprint.Tests
                 Equal(0.3f, building.Orientation.Up.Y, axis + " restored up y");
                 Equal(1, model.Reforms[0].X, axis + " restored reform x");
                 Equal(1, model.Reforms[0].Y, axis + " restored reform y");
+                Equal(2, model.CursorOffsetX, axis + " restored cursor x");
+                Equal(4, model.CursorOffsetY, axis + " restored cursor y");
             }
         }
 
@@ -156,7 +162,9 @@ namespace DSPMirrorBlueprint.Tests
         {
             var model = new BlueprintTransformModel {
                 Width = 6,
-                Height = 6
+                Height = 6,
+                CursorOffsetX = 2,
+                CursorOffsetY = 4
             };
             model.Areas.Add(new BlueprintTransformArea {
                 Index = 0,

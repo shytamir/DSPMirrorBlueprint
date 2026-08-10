@@ -1,26 +1,28 @@
 # DSP Mirror Blueprint
 
-DSP Mirror Blueprint is a planned BepInEx 5 mod for Dyson Sphere Program. Its
+DSP Mirror Blueprint is a BepInEx 5 mod for Dyson Sphere Program. Its
 single purpose is to let a player mirror the blueprint currently selected for
 deployment across either of its two planar axes.
 
 ## Status
 
-The initial BepInEx plugin and local-reference build are scaffolded. The plugin
-currently logs that it loaded; blueprint mirroring is not implemented yet. The
-product contract and architecture direction are recorded in
-[docs/PROJECT.md](docs/PROJECT.md).
+Deployment-time preview integration is implemented and ready for in-game
+verification. While a blueprint is open for placement, press `K` to mirror it
+horizontally or `Shift+K` to mirror it vertically. The integration mutates only
+the detached deployment copy and requests the game's normal preview refresh;
+the saved source blueprint remains unchanged. The product contract and
+architecture are recorded in [docs/PROJECT.md](docs/PROJECT.md).
 
 ## Intended behavior
 
-While placing a selected blueprint, the mod will provide two mirror operations:
+While placing a selected blueprint, the mod handles two mirror operations:
 
 - mirror across the blueprint's horizontal axis;
 - mirror across the blueprint's vertical axis.
 
-Mirroring is intended to affect the deployment preview and the resulting
-placement without modifying the saved source blueprint. The deployment data and
-integration path are documented in
+The implementation is designed so mirroring affects the deployment preview and
+the resulting placement without modifying the saved source blueprint. The
+deployment data and integration path are documented in
 [docs/ASSEMBLY_FINDINGS.md](docs/ASSEMBLY_FINDINGS.md).
 
 ## Geometry diagnostics
