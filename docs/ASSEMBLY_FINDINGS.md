@@ -152,6 +152,52 @@ yaw, and tilt for both endpoints.
 Foundation/reform geometry therefore needs the same per-area reflection as
 buildings if it is enabled for the selected blueprint.
 
+## Confirmed runtime fixture
+
+An opt-in geometry snapshot from plugin version `0.2.0` was examined without
+copying it into the repository. Its `assemblyMvid` matches the assembly recorded
+above. The fixture contains:
+
+- one area with width `20`, height `24`, and centerline `(9.5, 11.5)`;
+- cursor offset `(10, 12)` targeting area `0`;
+- 137 buildings and no reform rectangles;
+- item/model populations of `2001/35` (106), `2011/41` (18), `2308/63`
+  (6), `2201/44` (3), `2106/121` (3), and `2307/61` (1);
+- 123 buildings with at least one resolved input or output connection;
+- 18 two-endpoint buildings, all item/model `2011/41`.
+
+All resolved connection indices point to buildings in the snapshot. Every live
+connection index also matches its temporary serialized index. This confirms that
+the diagnostic preserves enough topology to test graph identity after a mirror.
+It does not yet prove whether any slot or offset value needs remapping.
+
+The building coordinates occupy approximately `x = 0..19` and `y = 0..23`.
+Small deviations from integers are present, including epsilon-sized negative
+and positive values. A mirror must therefore transform the stored floating-point
+values around `width - 1` or `height - 1`; it must not globally round or snap
+building positions.
+
+For the 18 two-endpoint buildings, `yaw` follows the bearing from the first
+endpoint to the second. The mean difference is about `0.14` degrees and the
+maximum is about `0.44` degrees. Yaw `0` aligns approximately with increasing
+`y`, and yaw `90` with increasing `x`. This supports the normalized mappings:
+
+- vertical mirror (`x' = width - 1 - x`):
+  `yaw' = (360 - yaw) mod 360`;
+- horizontal mirror (`y' = height - 1 - y`):
+  `yaw' = (180 - yaw) mod 360`.
+
+The two-endpoint records also contain small, nonzero pitch and tilt values caused
+by planetary curvature. Mirroring yaw alone would discard meaningful
+orientation data. The implementation should reflect the orientation's forward
+and up vectors in the corresponding local plane, reconstruct a proper rotation,
+and then write the resulting Euler components for both endpoints.
+
+The snapshot records the cloned `BlueprintData`, while the game's deployment
+rotation changes `BuildTool_BlueprintPaste.yaw`. Capturing the same active
+blueprint after ordinary deployment rotation would therefore produce the same
+blueprint geometry and would not add orientation evidence.
+
 ## Transform responsibilities inferred from the data flow
 
 The following are implementation conclusions, not game-provided mirror rules:
@@ -160,8 +206,8 @@ The following are implementation conclusions, not game-provided mirror rules:
   should reflect `x`, each around the applicable area bounds.
 - Both endpoint coordinate sets must be transformed. Vertical height offsets
   should remain unchanged.
-- `yaw/yaw2`, and potentially inserter `pitch/tilt` components, must be adjusted
-  so the reflected preview preserves the intended facing and endpoint geometry.
+- Both endpoint orientations must be reflected. This includes pitch and tilt,
+  not only `yaw/yaw2`.
 - Cursor offsets, area anchor offsets, and reform rectangles must remain
   consistent with the reflected area geometry.
 - Connection object references preserve graph identity, but the behavior of port
@@ -172,25 +218,22 @@ The following are implementation conclusions, not game-provided mirror rules:
 These rules should be implemented as a deterministic transform over the cloned
 `BlueprintData`, followed by the game's forced refresh path.
 
-## Runtime evidence still required
+## Runtime evidence status
 
 Static IL confirms which values participate, but it does not prove the semantic
-meaning of every orientation and port index. Before fixing the transform
-formulas, collect compact structural dumps from deliberately small blueprints:
+meaning of every port index or multi-area anchor. The captured fixture covers
+cardinal directions, connected belts, two-endpoint sorters, and several other
+building models. Remaining focused fixtures are:
 
-1. an asymmetric set of directional buildings facing the four cardinal
-   directions;
-2. a belt with a sorter so both endpoints, connection references, slots, and
-   offsets are present;
-3. one multi-cell or asymmetric-footprint building;
-4. a blueprint with foundation reform data;
-5. a blueprint crossing a tropic boundary, producing multiple areas.
+1. a blueprint with foundation reform data;
+2. a blueprint crossing a tropic boundary, producing multiple areas;
+3. if initial in-game mirroring exposes ambiguity, a deliberately small paired
+   original/manually mirrored fixture for the affected building or port layout.
 
 The mod now includes a disabled-by-default `F9` diagnostic that writes only the
 active cloned `BlueprintData` geometry: area fields, building item/model IDs,
 offsets, angles, connection indices/slots, and reform rectangles. It omits
 blueprint paths, descriptions, authorship, content, parameters, planet names,
-and unrelated game or save data. Comparing small dumps before and after the
-game's existing rotations will establish angle conventions and provide fixtures
-for deterministic mirror tests. Usage and output location are documented in the
-repository README.
+and unrelated game or save data. Usage and output location are documented in the
+repository README. Diagnostic JSON remains runtime evidence and must not be
+committed.
