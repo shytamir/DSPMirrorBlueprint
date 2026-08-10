@@ -1,26 +1,33 @@
 # DSP Mirror Blueprint
 
-Mirror the blueprint currently selected for deployment without changing the
-saved source blueprint.
+Mirror a blueprint horizontally or vertically while placing it. Your saved
+blueprint is not changed.
 
 ## Controls
 
-- Press **K** to mirror across the horizontal axis.
-- Press **Shift+K** to mirror across the vertical axis.
+- Press **K** to mirror across the horizontal axis, exchanging top and bottom.
+- Press **Shift+K** to mirror across the vertical axis, exchanging left and
+  right.
 
-The transformed deployment preview is the only visual indication. Pressing the
-same shortcut twice restores that axis to its original layout.
+The placement preview flips immediately and shows the layout that will be
+built. Pressing the same shortcut twice restores that axis to its original
+layout. The saved blueprint remains unchanged.
+
+## Requirements
+
+- Dyson Sphere Program
+- BepInEx 5
 
 ## Installation
 
-The simplest option is a Thunderstore-compatible mod manager. Install DSP
-Mirror Blueprint and launch Dyson Sphere Program with mods enabled; the BepInEx
-dependency will be installed automatically.
+With a Thunderstore-compatible mod manager, install DSP Mirror Blueprint and
+launch Dyson Sphere Program with mods enabled. The required BepInEx dependency
+is installed automatically.
 
 For manual installation, install BepInEx 5 and copy the package's `BepInEx`
 folder into the Dyson Sphere Program game folder.
 
-## Source and issues
+## Support and source
 
 [View the source or report a problem](https://github.com/shytamir/DSPMirrorBlueprint).
 
