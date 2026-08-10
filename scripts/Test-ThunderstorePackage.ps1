@@ -48,6 +48,7 @@ $expectedEntries = @(
     'manifest.json',
     'README.md',
     'icon.png',
+    'LICENSE',
     'BepInEx/plugins/DSP-Mirror-Blueprint/DSPMirrorBlueprint.dll'
 )
 $archive = [System.IO.Compression.ZipFile]::OpenRead(
@@ -89,6 +90,14 @@ try {
     if (-not $readme.StartsWith('# DSP Mirror Blueprint') -or
         $readme -notmatch 'Shift\+K') {
         throw 'Package README is missing required player-facing content.'
+    }
+
+    $licenseEntry = $files | Where-Object FullName -CEQ 'LICENSE'
+    $license = Read-ZipText $licenseEntry
+    if ($license -notmatch 'Apache License' -or
+        $license -notmatch 'Version 2\.0, January 2004' -or
+        $license -notmatch 'Copyright 2026 Shy Alexander Tamir') {
+        throw 'Package LICENSE is missing the expected Apache 2.0 terms.'
     }
 
     Add-Type -AssemblyName System.Drawing

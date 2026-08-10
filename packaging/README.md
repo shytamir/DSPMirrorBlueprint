@@ -26,3 +26,8 @@ folder into the Dyson Sphere Program game folder.
 
 DSP Mirror Blueprint is an unofficial community project. Dyson Sphere Program
 belongs to its respective owners.
+
+## License
+
+DSP Mirror Blueprint is licensed under the Apache License 2.0 included in this
+package.

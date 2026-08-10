@@ -6,14 +6,16 @@ deployment across either of its two planar axes.
 
 ## Status
 
-Deployment-time preview integration is implemented and ready for in-game
-verification. While a blueprint is open for placement, press `K` to mirror it
-horizontally or `Shift+K` to mirror it vertically. The integration mutates only
-the detached deployment copy and requests the game's normal preview refresh;
-the saved source blueprint remains unchanged. The product contract and
-architecture are recorded in [docs/PROJECT.md](docs/PROJECT.md).
+The project is a release candidate. Deployment-time preview integration and
+targeted in-game checks are complete; the full
+[1.0 validation matrix](docs/RC-VALIDATION.md) remains the release gate. While a
+blueprint is open for placement, press `K` to mirror it horizontally or
+`Shift+K` to mirror it vertically. The integration mutates only the detached
+deployment copy and requests the game's normal preview refresh; the saved source
+blueprint remains unchanged. The product contract and architecture are recorded
+in [docs/PROJECT.md](docs/PROJECT.md).
 
-## Intended behavior
+## Behavior
 
 While placing a selected blueprint, the mod handles two mirror operations:
 
@@ -79,10 +81,16 @@ those dependencies into the output.
 Each push to `main`, or a manual release-workflow run, builds and tests the mod
 using pinned public compile references and uploads a Thunderstore-compatible ZIP
 as a GitHub Actions artifact. `VERSION` supplies the semantic major and minor
-numbers; the workflow run number supplies the patch. BepInEx, assembly, and
-Thunderstore identities are generated from that single release version. Package
-layout and validation are documented in
+numbers; the workflow run number supplies the patch. The first stable release
+will therefore be `1.0.N`, where `N` is the single-digit workflow run number.
+BepInEx, assembly, and Thunderstore identities are generated from that single
+release version. Publishing is manual. Package layout, validation, and the
+publication procedure are documented in
 [docs/THUNDERSTORE-PACKAGE.md](docs/THUNDERSTORE-PACKAGE.md).
+
+## License
+
+DSP Mirror Blueprint is licensed under the [Apache License 2.0](LICENSE).
 
 ## Scope
 

@@ -70,16 +70,16 @@ conditions when creating `PrebuildData`. Applying a mirror before the forced
 preview refresh therefore lets the game's existing preview, validation, and
 placement paths remain authoritative.
 
-## Recommended integration seam
+## Implemented integration seam
 
-Patch `BuildTool_BlueprintPaste.DeterminRotate()` with a postfix located through
-reflection. On `K` or `Shift+K`:
+The implementation patched `BuildTool_BlueprintPaste.DeterminRotate()` with a
+postfix located through reflection. On `K` or `Shift+K`, it:
 
-1. mutate only the active tool's cloned `blueprint`;
-2. set the method result to `true`;
-3. let `OperatingPrestage()` perform its normal forced refresh.
+1. mutates only the active tool's cloned `blueprint`;
+2. sets the method result to `true`;
+3. lets `OperatingPrestage()` perform its normal forced refresh.
 
-This seam is narrower than patching the 2,412-instruction
+This seam was narrower than patching the 2,412-instruction
 `BlueprintUtils.RefreshBuildPreview()` method or the 922-instruction
 `CreatePrebuilds()` method. It also avoids maintaining a second preview or
 placement implementation. The method is called in both the ordinary valid-cursor
@@ -166,10 +166,11 @@ above. The fixture contains:
 - 123 buildings with at least one resolved input or output connection;
 - 18 two-endpoint buildings, all item/model `2011/41`.
 
-All resolved connection indices point to buildings in the snapshot. Every live
-connection index also matches its temporary serialized index. This confirms that
-the diagnostic preserves enough topology to test graph identity after a mirror.
-It does not yet prove whether any slot or offset value needs remapping.
+All resolved connection indices pointed to buildings in the snapshot. Every live
+connection index also matched its temporary serialized index. This confirmed
+that the diagnostic preserved enough topology to test graph identity after a
+mirror. At that stage, it did not prove whether any slot or offset value needed
+remapping.
 
 The building coordinates occupy approximately `x = 0..19` and `y = 0..23`.
 Small deviations from integers are present, including epsilon-sized negative
@@ -187,11 +188,11 @@ maximum is about `0.44` degrees. Yaw `0` aligns approximately with increasing
 - horizontal mirror (`y' = height - 1 - y`):
   `yaw' = (180 - yaw) mod 360`.
 
-The two-endpoint records also contain small, nonzero pitch and tilt values caused
-by planetary curvature. Mirroring yaw alone would discard meaningful
-orientation data. The implementation should reflect the orientation's forward
-and up vectors in the corresponding local plane, reconstruct a proper rotation,
-and then write the resulting Euler components for both endpoints.
+The two-endpoint records also contained small, nonzero pitch and tilt values
+caused by planetary curvature. Mirroring yaw alone would discard meaningful
+orientation data. This established the requirement to reflect the orientation's
+forward and up vectors in the corresponding local plane, reconstruct a proper
+rotation, and write the resulting Euler components for both endpoints.
 
 The snapshot records the cloned `BlueprintData`, while the game's deployment
 rotation changes `BuildTool_BlueprintPaste.yaw`. Capturing the same active
@@ -224,20 +225,21 @@ All buildings and both reform rectangles report `areaIndex = 0`, while building
 `y` coordinates span approximately `0..14`, beyond area `0`'s height of `5` and
 across the combined drag height of `15`. The fixture therefore proves the
 multi-area hierarchy but does not support treating every element coordinate as
-strictly local to the dimensions of its referenced area. The first internal
-transform should preserve area metadata and element area indices while using an
-explicit aggregate transform plane. Area-anchor rewriting should wait for an
-in-game mirrored preview to show that it is necessary.
+strictly local to the dimensions of its referenced area. The internal transform
+consequently preserves area metadata and element area indices while using an
+explicit aggregate transform plane. Area-anchor rewriting was deferred unless
+an in-game mirrored preview showed that it was necessary.
 
-## Transform responsibilities inferred from the data flow
+## Transform rules derived from the data flow
 
-The following are implementation conclusions, not game-provided mirror rules:
+The following implementation rules were derived from the evidence; they are not
+game-provided mirror rules:
 
-- Horizontal mirroring should reflect the `y` coordinate; vertical mirroring
-  should reflect `x`, each around the applicable area bounds.
-- Both endpoint coordinate sets must be transformed. Vertical height offsets
-  should remain unchanged.
-- Both endpoint orientations must be reflected. This includes pitch and tilt,
+- Horizontal mirroring reflects the `y` coordinate; vertical mirroring reflects
+  `x`, each around the applicable area bounds.
+- Both endpoint coordinate sets are transformed. Vertical height offsets remain
+  unchanged.
+- Both endpoint orientations are reflected. This includes pitch and tilt,
   not only `yaw/yaw2`.
 - Cursor offsets, area anchor offsets, and reform rectangles must remain
   consistent with the reflected area geometry.
@@ -247,22 +249,24 @@ The following are implementation conclusions, not game-provided mirror rules:
 - Width and height do not exchange when reflecting across an axis; reform
   rectangle origins do move within those unchanged bounds.
 
-These rules should be implemented as a deterministic transform over the cloned
+These rules were implemented as a deterministic transform over the cloned
 `BlueprintData`, followed by the game's forced refresh path.
 
 ## Runtime evidence status
 
-Static IL confirms which values participate, but it does not prove the semantic
+Static IL confirmed which values participate, but did not prove the semantic
 meaning of every port index or all multi-area anchor behavior. The captured
-fixtures cover cardinal directions, connected belts, two-endpoint sorters,
+fixtures covered cardinal directions, connected belts, two-endpoint sorters,
 several other building models, reform rectangles, and a two-area tropic
-crossing. Remaining runtime work is:
+crossing. Initial multi-area runtime testing exposed incorrect sorter port
+mapping. Slot-pose diagnostics then identified the missing transform, and a
+follow-up check confirmed geometrically correct mirroring after slot remapping;
+the observed preview was unplaceable under the game's normal placement rules.
 
-1. verify the first mirrored preview and placement against the two-area fixture;
-2. if that exposes ambiguity, capture a deliberately small paired
-   original/manually mirrored fixture for the affected building or port layout.
+The comprehensive preview and placement checks still required for 1.0 are
+defined in [RC-VALIDATION.md](RC-VALIDATION.md).
 
-The mod now includes a disabled-by-default `F9` diagnostic that writes only the
+The mod includes a disabled-by-default `F9` diagnostic that writes only the
 active cloned `BlueprintData` geometry: area fields, building item/model IDs,
 offsets, angles, connection indices/slots, reform rectangles, and runtime slot
 poses for models referenced by the active blueprint. The slot poses are resolved

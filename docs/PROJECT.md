@@ -2,8 +2,8 @@
 
 ## Purpose
 
-DSP Mirror Blueprint will add horizontal and vertical mirroring to Dyson Sphere
-Program's blueprint deployment interface. The feature is for transforming the
+DSP Mirror Blueprint adds horizontal and vertical mirroring to Dyson Sphere
+Program's blueprint deployment interface. The feature transforms the
 blueprint selected for placement; it is not a general-purpose blueprint editor.
 
 ## Product goals
@@ -16,8 +16,8 @@ blueprint selected for placement; it is not a general-purpose blueprint editor.
 - Integrate without replacing the game's blueprint interface.
 
 The terms `horizontal` and `vertical` describe the two axes of the blueprint's
-deployment plane. Their exact mapping to the game's coordinate system will be
-confirmed from runtime evidence before implementation.
+deployment plane. Runtime evidence confirmed that horizontal reflection changes
+the local `y` coordinate and vertical reflection changes local `x`.
 
 ## Player interaction
 
@@ -41,9 +41,8 @@ Even and odd dimensions are both unambiguous under this rule:
 
 For zero-based discrete coordinates, the corresponding mappings are
 `x' = width - 1 - x` and `y' = height - 1 - y`. Building footprints,
-orientations, and connections must be transformed consistently with those
-position mappings. Their exact representation is an implementation detail to be
-confirmed from game evidence.
+orientations, connections, reform geometry, and cursor offsets are transformed
+consistently with those position mappings.
 
 ## Non-goals
 
@@ -67,7 +66,7 @@ confirmed from game evidence.
   documented need; reflection or a narrow adapter is preferred for unstable
   game internals.
 
-## Proposed architecture
+## Architecture
 
 The smallest useful design has three boundaries:
 
@@ -91,7 +90,7 @@ A Harmony postfix on `BuildTool_BlueprintPaste.DeterminRotate()` handles the
 fixed input and asks the game's existing path to refresh the preview after each
 successful mirror.
 
-## Behavioral invariants to establish
+## Release acceptance invariants
 
 - Applying the same mirror operation twice restores the original layout.
 - Horizontal and vertical mirrors have defined, deterministic effects on every
@@ -101,24 +100,24 @@ successful mirror.
   state.
 - Invalid placements remain invalid; mirroring does not bypass game validation.
 
-These are design requirements, not claims about an implementation that already
-exists.
+The deterministic transform tests cover these invariants where no game runtime
+is required. Preview, placement, cancellation, switching, and invalid-placement
+behavior are verified through [the in-game RC matrix](RC-VALIDATION.md).
 
-## Initial implementation milestones
+## Implementation status
 
-1. Scaffold the BepInEx plugin and local-reference build.
-2. Inspect the installed game assembly to identify blueprint deployment data,
-   preview generation, placement confirmation, and existing rotate/input paths.
-3. Define a minimal internal blueprint transform model and focused deterministic
-   tests for both axes.
-4. Add deployment-time input and preview integration.
-5. Verify placement behavior in game, including belts, sorters, orientations,
-   connections, repeated mirroring, cancellation, and blueprint switching.
+1. The BepInEx plugin and local-reference build were scaffolded.
+2. The installed game assembly was examined and its deployment path was
+   documented.
+3. A minimal transform model and deterministic tests were implemented.
+4. Deployment-time input and preview integration were implemented.
+5. Targeted runtime fixtures exposed and confirmed the sorter slot-remapping
+   fix. Comprehensive 1.0 acceptance remains tracked by the RC matrix.
 
-## Required implementation research
+## Evidence record
 
-Before game integration begins, inspect the installed game assemblies and
-runtime behavior to identify the authoritative blueprint deployment types,
-preview generation path, placement confirmation path, and existing input or
-rotation handling. Record confirmed members separately from inferred behavior;
-this research is an implementation prerequisite, not a product decision.
+The installed game assemblies and targeted runtime snapshots were examined to
+identify the authoritative blueprint deployment types, preview and placement
+paths, input seam, reform geometry, multi-area metadata, and connection slot
+poses. Confirmed members remain separated from inference in
+[ASSEMBLY_FINDINGS.md](ASSEMBLY_FINDINGS.md).

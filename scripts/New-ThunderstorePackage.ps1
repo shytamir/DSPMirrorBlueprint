@@ -22,12 +22,14 @@ $manifestTemplatePath = Join-Path $RepositoryRoot `
     'packaging\manifest.template.json'
 $readmePath = Join-Path $RepositoryRoot 'packaging\README.md'
 $iconPath = Join-Path $RepositoryRoot 'packaging\icon.png'
+$licensePath = Join-Path $RepositoryRoot 'LICENSE'
 
 foreach ($requiredPath in @(
         $DllPath,
         $manifestTemplatePath,
         $readmePath,
-        $iconPath
+        $iconPath,
+        $licensePath
     )) {
     if (-not (Test-Path -LiteralPath $requiredPath -PathType Leaf)) {
         throw "Required package input was not found: $requiredPath"
@@ -92,6 +94,12 @@ try {
         $archive,
         $iconPath,
         'icon.png',
+        [System.IO.Compression.CompressionLevel]::Optimal
+    ) | Out-Null
+    [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+        $archive,
+        $licensePath,
+        'LICENSE',
         [System.IO.Compression.CompressionLevel]::Optimal
     ) | Out-Null
     [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(

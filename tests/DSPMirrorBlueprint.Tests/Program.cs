@@ -13,9 +13,14 @@ namespace DSPMirrorBlueprint.Tests
                 HorizontalMirrorReflectsGeometry,
                 VerticalMirrorReflectsGeometry,
                 DoubleMirrorRestoresOriginal,
+                OddSizedCenterlinesStayFixed,
+                MixedAxisMirrorsCommute,
                 ConnectionSlotsFollowMirroredPrefabPoses,
                 CoincidentSlotPositionsUseOrientation,
+                MissingOrUnmatchedSlotPosesRemainStable,
                 AreaMetadataAndTopologyRemainStable,
+                MultiAreaFixtureUsesAggregateBounds,
+                ReformRectanglesReflectAtBounds,
                 InvalidBoundsAreRejected
             };
 
@@ -123,6 +128,90 @@ namespace DSPMirrorBlueprint.Tests
             }
         }
 
+        private static void OddSizedCenterlinesStayFixed()
+        {
+            var model = new BlueprintTransformModel {
+                Width = 5,
+                Height = 7,
+                CursorOffsetX = 2,
+                CursorOffsetY = 3
+            };
+            model.Buildings.Add(new BlueprintTransformBuilding {
+                Position = new BlueprintVector3(2f, 3f, 1f),
+                Position2 = new BlueprintVector3(0f, 6f, 2f)
+            });
+            model.Reforms.Add(new BlueprintTransformReform {
+                X = 2,
+                Y = 3,
+                Width = 1,
+                Height = 1
+            });
+
+            BlueprintMirrorTransform.Apply(model, BlueprintMirrorAxis.Horizontal);
+            BlueprintMirrorTransform.Apply(model, BlueprintMirrorAxis.Vertical);
+
+            Equal(2f, model.Buildings[0].Position.X, "odd center building x");
+            Equal(3f, model.Buildings[0].Position.Y, "odd center building y");
+            Equal(4f, model.Buildings[0].Position2.X, "odd edge endpoint x");
+            Equal(0f, model.Buildings[0].Position2.Y, "odd edge endpoint y");
+            Equal(2, model.Reforms[0].X, "odd center reform x");
+            Equal(3, model.Reforms[0].Y, "odd center reform y");
+            Equal(2, model.CursorOffsetX, "odd center cursor x");
+            Equal(3, model.CursorOffsetY, "odd center cursor y");
+        }
+
+        private static void MixedAxisMirrorsCommute()
+        {
+            BlueprintTransformModel horizontalThenVertical = CreateModel();
+            BlueprintMirrorTransform.Apply(
+                horizontalThenVertical,
+                BlueprintMirrorAxis.Horizontal);
+            BlueprintMirrorTransform.Apply(
+                horizontalThenVertical,
+                BlueprintMirrorAxis.Vertical);
+
+            BlueprintTransformModel verticalThenHorizontal = CreateModel();
+            BlueprintMirrorTransform.Apply(
+                verticalThenHorizontal,
+                BlueprintMirrorAxis.Vertical);
+            BlueprintMirrorTransform.Apply(
+                verticalThenHorizontal,
+                BlueprintMirrorAxis.Horizontal);
+
+            BlueprintTransformBuilding left = horizontalThenVertical.Buildings[0];
+            BlueprintTransformBuilding right = verticalThenHorizontal.Buildings[0];
+            Equal(left.Position.X, right.Position.X, "mixed-axis position x");
+            Equal(left.Position.Y, right.Position.Y, "mixed-axis position y");
+            Equal(left.Position2.X, right.Position2.X, "mixed-axis endpoint x");
+            Equal(left.Position2.Y, right.Position2.Y, "mixed-axis endpoint y");
+            Equal(
+                left.Orientation.Forward.X,
+                right.Orientation.Forward.X,
+                "mixed-axis forward x");
+            Equal(
+                left.Orientation.Forward.Y,
+                right.Orientation.Forward.Y,
+                "mixed-axis forward y");
+            Equal(left.InputFromSlot, right.InputFromSlot, "mixed-axis input slot");
+            Equal(left.OutputToSlot, right.OutputToSlot, "mixed-axis output slot");
+            Equal(
+                horizontalThenVertical.Reforms[0].X,
+                verticalThenHorizontal.Reforms[0].X,
+                "mixed-axis reform x");
+            Equal(
+                horizontalThenVertical.Reforms[0].Y,
+                verticalThenHorizontal.Reforms[0].Y,
+                "mixed-axis reform y");
+            Equal(
+                horizontalThenVertical.CursorOffsetX,
+                verticalThenHorizontal.CursorOffsetX,
+                "mixed-axis cursor x");
+            Equal(
+                horizontalThenVertical.CursorOffsetY,
+                verticalThenHorizontal.CursorOffsetY,
+                "mixed-axis cursor y");
+        }
+
         private static void ConnectionSlotsFollowMirroredPrefabPoses()
         {
             foreach (BlueprintMirrorAxis axis in new[] {
@@ -152,6 +241,34 @@ namespace DSPMirrorBlueprint.Tests
             Equal(11, model.Buildings[0].OutputToSlot, "orientation-disambiguated slot");
         }
 
+        private static void MissingOrUnmatchedSlotPosesRemainStable()
+        {
+            BlueprintTransformModel model = CreateModel();
+            model.Buildings[1].ModelIndex = 404;
+            model.Buildings[2].ModelIndex = 404;
+            BlueprintMirrorTransform.Apply(model, BlueprintMirrorAxis.Vertical);
+            Equal(10, model.Buildings[0].InputFromSlot, "missing model input slot");
+            Equal(9, model.Buildings[0].OutputToSlot, "missing model output slot");
+
+            model = CreateModel();
+            model.Buildings[0].InputFromSlot = 99;
+            model.Buildings[0].OutputToSlot = 98;
+            BlueprintMirrorTransform.Apply(model, BlueprintMirrorAxis.Horizontal);
+            Equal(99, model.Buildings[0].InputFromSlot, "unknown input slot");
+            Equal(98, model.Buildings[0].OutputToSlot, "unknown output slot");
+
+            model = CreateModel();
+            model.Buildings[2].ModelIndex = 66;
+            model.Buildings[0].OutputToSlot = 3;
+            model.SlotPosesByModelIndex.Add(
+                66,
+                new List<BlueprintTransformSlotPose> {
+                    CreateSlot(3, 1f, 0f, 1f)
+                });
+            BlueprintMirrorTransform.Apply(model, BlueprintMirrorAxis.Vertical);
+            Equal(3, model.Buildings[0].OutputToSlot, "unmatched reflected slot");
+        }
+
         private static void AreaMetadataAndTopologyRemainStable()
         {
             BlueprintTransformModel model = CreateModel();
@@ -172,6 +289,106 @@ namespace DSPMirrorBlueprint.Tests
             Equal(0, building.AreaIndex, "building area index");
             Equal(0, model.Reforms[0].AreaIndex, "reform area index");
             Equal(32, model.Reforms[0].Data, "reform data");
+        }
+
+        private static void MultiAreaFixtureUsesAggregateBounds()
+        {
+            var model = new BlueprintTransformModel {
+                Width = 27,
+                Height = 15,
+                CursorOffsetX = 26,
+                CursorOffsetY = 14
+            };
+            model.Areas.Add(new BlueprintTransformArea {
+                Index = 0,
+                ParentIndex = -1,
+                AreaSegments = 160,
+                Width = 27,
+                Height = 5
+            });
+            model.Areas.Add(new BlueprintTransformArea {
+                Index = 1,
+                ParentIndex = 0,
+                AreaSegments = 120,
+                AnchorLocalOffsetY = 5,
+                Width = 21,
+                Height = 10
+            });
+            model.Buildings.Add(new BlueprintTransformBuilding {
+                Index = 0,
+                AreaIndex = 0,
+                Position = new BlueprintVector3(26f, 14f, 0f),
+                Position2 = new BlueprintVector3(0f, 0f, 0f)
+            });
+            model.Reforms.Add(new BlueprintTransformReform {
+                AreaIndex = 0,
+                X = 19,
+                Y = 3,
+                Width = 3,
+                Height = 2,
+                Data = 32
+            });
+            model.Reforms.Add(new BlueprintTransformReform {
+                AreaIndex = 0,
+                X = 25,
+                Y = 3,
+                Width = 1,
+                Height = 2,
+                Data = 32
+            });
+
+            BlueprintMirrorTransform.Apply(model, BlueprintMirrorAxis.Vertical);
+            Equal(0f, model.Buildings[0].Position.X, "multi-area position x");
+            Equal(26f, model.Buildings[0].Position2.X, "multi-area endpoint x");
+            Equal(5, model.Reforms[0].X, "multi-area wide reform x");
+            Equal(1, model.Reforms[1].X, "multi-area narrow reform x");
+
+            BlueprintMirrorTransform.Apply(model, BlueprintMirrorAxis.Horizontal);
+            Equal(0f, model.Buildings[0].Position.Y, "multi-area position y");
+            Equal(14f, model.Buildings[0].Position2.Y, "multi-area endpoint y");
+            Equal(10, model.Reforms[0].Y, "multi-area wide reform y");
+            Equal(10, model.Reforms[1].Y, "multi-area narrow reform y");
+            Equal(0, model.CursorOffsetX, "multi-area cursor x");
+            Equal(0, model.CursorOffsetY, "multi-area cursor y");
+            Equal(120, model.Areas[1].AreaSegments, "multi-area segments");
+            Equal(5, model.Areas[1].AnchorLocalOffsetY, "multi-area anchor");
+        }
+
+        private static void ReformRectanglesReflectAtBounds()
+        {
+            var vertical = new BlueprintTransformModel { Width = 8, Height = 6 };
+            vertical.Reforms.Add(new BlueprintTransformReform {
+                X = 0,
+                Y = 1,
+                Width = 2,
+                Height = 3
+            });
+            vertical.Reforms.Add(new BlueprintTransformReform {
+                X = 6,
+                Y = 1,
+                Width = 2,
+                Height = 3
+            });
+            BlueprintMirrorTransform.Apply(vertical, BlueprintMirrorAxis.Vertical);
+            Equal(6, vertical.Reforms[0].X, "left-bound reform");
+            Equal(0, vertical.Reforms[1].X, "right-bound reform");
+
+            var horizontal = new BlueprintTransformModel { Width = 8, Height = 6 };
+            horizontal.Reforms.Add(new BlueprintTransformReform {
+                X = 1,
+                Y = 0,
+                Width = 3,
+                Height = 2
+            });
+            horizontal.Reforms.Add(new BlueprintTransformReform {
+                X = 1,
+                Y = 4,
+                Width = 3,
+                Height = 2
+            });
+            BlueprintMirrorTransform.Apply(horizontal, BlueprintMirrorAxis.Horizontal);
+            Equal(4, horizontal.Reforms[0].Y, "bottom-bound reform");
+            Equal(0, horizontal.Reforms[1].Y, "top-bound reform");
         }
 
         private static void InvalidBoundsAreRejected()
