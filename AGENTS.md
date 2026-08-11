@@ -225,13 +225,16 @@ Before editing or pushing, fetch or use `git pull --ff-only` when the clean
 local branch may be behind its remote. Never resolve divergence with a force
 push or history rewrite.
 
-The sandbox-visible `gh auth status` may report a stale GitHub CLI token even
-when the repository's Git credential manager and GitHub connector have valid
-push access. Do not log out, replace credentials, or start an interactive
-login unless the user asks. For a direct push requested by the user, first
-validate repository permission through the connector or a no-change
-`git push --dry-run`, then use ordinary `git push`. If authenticated Git push
-also fails, stop and report the exact blocker.
+Treat GitHub connector, local Git, and `gh` authentication as independent.
+Do not run `gh auth status` as an unconditional plugin prerequisite. Check it
+only immediately before an operation that genuinely requires `gh`, such as
+Actions-log inspection or thread-aware review GraphQL.
+
+Prefer the connector for supported GitHub API operations and local `git` for
+fetch, pull, and push. A stale `gh` token does not block either path. If `gh`
+is genuinely required and unauthenticated, ask the user to refresh it; do not
+log out, replace credentials, or start interactive login yourself. Report a
+blocker only when the interface required for the requested operation fails.
 
 ## 14. GitHub and CI
 
