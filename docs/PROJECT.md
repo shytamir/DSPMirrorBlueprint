@@ -7,7 +7,8 @@ was built, independently inspected, and accepted as production-ready. Repository
 release work for `1.0.8` was completed; Thunderstore publication remains a
 manual distribution step rather than active repository work.
 
-There is no planned feature development. Maintenance work is limited to:
+There is no planned feature development for the proven BepInEx product.
+Maintenance work on `main` is limited to:
 
 - confirmed defects within the existing mirror behavior;
 - documentation, packaging, licensing, and release corrections;
@@ -19,6 +20,35 @@ an explicit scope decision before implementation. This file is the sole active
 project-management record. Completed investigation, validation, and packaging
 documents are retained under [`docs/archive`](archive/) as historical evidence,
 not as an active backlog.
+
+## DSP Plugin Manager migration project
+
+A separate variant targeting
+[DSP Plugin Manager](https://github.com/shytamir/DSPPluginManager) is planned on
+the `dpm-support` branch. Its authoritative migration requirements are maintained
+by that project in `docs/MIGRATION.md`. The specification was reviewed from the
+local manager clone at commit
+`f831068c2bc95aefee4a558d81eadd952ecb69fb` without selecting that revision as
+the migration dependency lock.
+
+The migration project has not started. Its branch was created solely to isolate
+future work. The following boundaries apply:
+
+- `main` remains the proven BepInEx 5 product and `1.0.8` production baseline;
+- the existing source, package, versioning, validation, and release workflow on
+  `main` must not be replaced or repurposed by migration work;
+- migration source, dependency, build, test, package, and user-documentation
+  changes belong only on `dpm-support` until explicitly accepted;
+- the manager revision and positive reference-kit build sequence must be pinned
+  and validated before migration compile references are adopted;
+- publication of the variant remains blocked until DSP Plugin Manager selects
+  its final Thunderstore dependency identity, plugin payload path, and
+  publication procedure;
+- no migration branch result may be presented as replacing the BepInEx product
+  without its own deterministic, installed-runtime, and package acceptance.
+
+No source migration, dependency substitution, pipeline change, or package
+change was authorized by creating the branch or recording this project.
 
 ## Purpose
 
