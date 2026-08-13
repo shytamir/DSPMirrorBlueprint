@@ -24,7 +24,7 @@ The development build includes an opt-in geometry dump for establishing mirror
 test fixtures. It is disabled by default. To use it:
 
 1. Set `EnableGeometryDump = true` under `Diagnostics` in
-   `BepInEx\config\com.shytamir.dspmirrorblueprint.cfg`.
+   `BepInEx\config\dspmirrorblueprint.cfg`.
 2. Open a blueprint for deployment in game.
 3. Press `F9`, or change `GeometryDumpKey` in the same configuration file.
 

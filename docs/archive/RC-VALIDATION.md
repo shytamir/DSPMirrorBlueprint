@@ -79,7 +79,7 @@ Use this focused check after installing a build containing the DSP input-capture
 fix:
 
 1. Exit the game. In
-   `BepInEx\config\com.shytamir.dspmirrorblueprint.cfg`, set
+   `BepInEx\config\dspmirrorblueprint.cfg`, set
    `EnableInputDiagnostics = true`, then start the game.
 2. Open the `21 x 21` odd-bounds blueprint for placement. Do not place it.
 3. Press and release `K` 20 times. Pause after each press long enough to confirm

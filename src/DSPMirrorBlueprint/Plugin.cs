@@ -9,7 +9,7 @@ namespace DSPMirrorBlueprint
     [BepInPlugin(PluginGuid, PluginName, BuildVersion.BepInPluginVersion)]
     public sealed class Plugin : BaseUnityPlugin
     {
-        public const string PluginGuid = "com.shytamir.dspmirrorblueprint";
+        public const string PluginGuid = "dspmirrorblueprint";
         public const string PluginName = "DSP Mirror Blueprint";
         public const string PluginVersion = BuildVersion.PluginVersion;
 
