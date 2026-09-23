@@ -2,15 +2,14 @@
 
 ## Maintenance status
 
-DSP Mirror Blueprint entered maintenance mode after the stable `1.0.8` package
-was built, independently inspected, and accepted as production-ready. Repository
-release work for `1.0.8` was completed; Thunderstore publication remains a
-manual distribution step rather than active repository work.
+DSP Mirror Blueprint is in maintenance mode. The game-update support work and
+`1.1` minor-version promotion are complete, with `1.1.11` as the current
+production package. The `1.1` tag points to the validated release commit, and
+the owner confirmed Thunderstore publication on 2026-09-24. No implementation,
+validation, packaging, or publication work remains open for this release.
 
-The current BepInEx release line is `1.1.N`, promoted on 2026-09-23 after
-the owner confirmed support for game version `0.10.35.29057`. This minor-version
-promotion changes release identity without changing runtime behavior. `VERSION`
-supplies `1.1`; the GitHub Actions workflow run number supplies `N`.
+The BepInEx release line is `1.1.N`: `VERSION` supplies `1.1`, and the GitHub
+Actions workflow run number supplies `N`. There is no active work on `main`.
 
 There is no planned feature development for the proven BepInEx product.
 Maintenance work on `main` is limited to:
@@ -210,6 +209,22 @@ All planned release-candidate implementation and acceptance work was completed.
 No known implementation or validation blocker remained after the accepted
 0.4.7 package audit. The stable version transition and `1.0.8` artifact audit
 were then completed. The repository subsequently entered maintenance mode.
+
+### Completed maintenance release: 1.1.11
+
+- On 2026-09-23, support for game version `0.10.35.29057` was documented after
+  the owner reran all existing validations successfully. Historical validation
+  identities were preserved, and no runtime behavior changes were needed.
+- Commit `c92a016c5792938c5d2094f572b6349ae5052fa4` promoted the minor version
+  to `1.1`. Local and GitHub Actions build 11 validation passed with zero
+  warnings or errors and all 14 deterministic tests passing.
+- The downloaded Actions package was independently inspected: manifest and
+  plugin versions were `1.1.11`, assembly and file versions were `1.1.11.0`,
+  and the diagnostic/product label was `1.1.11.c92a016`. Artifact checksum,
+  filenames, package layout, README, license, icon, and dependency checks passed.
+- On 2026-09-24, tag `1.1` was verified at the release commit, and the owner
+  confirmed store publication. The release work is closed and `main` is back
+  in maintenance mode with no remaining release tasks.
 
 ## Evidence record
 
