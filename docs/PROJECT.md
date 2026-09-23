@@ -7,6 +7,11 @@ was built, independently inspected, and accepted as production-ready. Repository
 release work for `1.0.8` was completed; Thunderstore publication remains a
 manual distribution step rather than active repository work.
 
+The current BepInEx release line is `1.1.N`, promoted on 2026-09-23 after
+the owner confirmed support for game version `0.10.35.29057`. This minor-version
+promotion changes release identity without changing runtime behavior. `VERSION`
+supplies `1.1`; the GitHub Actions workflow run number supplies `N`.
+
 There is no planned feature development for the proven BepInEx product.
 Maintenance work on `main` is limited to:
 
@@ -52,7 +57,7 @@ the migration dependency lock.
 The migration project has not started. Its branch was created solely to isolate
 future work. The following boundaries apply:
 
-- `main` remains the proven BepInEx 5 product and `1.0.8` production baseline;
+- `main` remains the proven BepInEx 5 product on the `1.1.N` release line;
 - the existing source, package, versioning, validation, and release workflow on
   `main` must not be replaced or repurposed by migration work;
 - migration source, dependency, build, test, package, and user-documentation
