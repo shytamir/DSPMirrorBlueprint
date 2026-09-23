@@ -49,7 +49,7 @@ default and records no blueprint or save data.
 
 ## Target environment
 
-- Dyson Sphere Program
+- Dyson Sphere Program (validated and fully supported on `0.10.35.29057`)
 - BepInEx 5
 - C# 7.3
 - .NET Framework 4.7.2 (`net472`)

@@ -15,7 +15,7 @@ layout. The saved blueprint remains unchanged.
 
 ## Requirements
 
-- Dyson Sphere Program
+- Dyson Sphere Program (validated and fully supported on `0.10.35.29057`)
 - BepInEx 5
 
 ## Installation

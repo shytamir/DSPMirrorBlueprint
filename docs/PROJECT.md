@@ -14,12 +14,30 @@ Maintenance work on `main` is limited to:
 - documentation, packaging, licensing, and release corrections;
 - narrowly authorized changes to the stable release line.
 
-Compatibility across game releases and with other mods remains outside the
+Compatibility with unvalidated game releases and with other mods remains outside the
 product commitment. Any new capability or wider compatibility effort requires
 an explicit scope decision before implementation. This file is the sole active
 project-management record. Completed investigation, validation, and packaging
 documents are retained under [`docs/archive`](archive/) as historical evidence,
 not as an active backlog.
+
+## Current game support
+
+Dyson Sphere Program `0.10.35.29057` is fully supported for the documented
+blueprint mirror behavior. On 2026-09-23, the project owner reported rerunning
+all existing validations against the updated game and confirmed that the
+existing BepInEx implementation works unchanged. No code changes were required.
+
+The installed game version was confirmed from `GameConfig` and
+`Updates/Versions.txt`. The updated assembly was read as a local, read-only input:
+
+- Assembly: `DSPGAME_Data/Managed/Assembly-CSharp.dll`
+- Assembly identity: `Assembly-CSharp, Version=0.0.0.0`
+- Module MVID: `9d8957ec-44bb-4b81-9e0b-0ec4de39ccfa`
+- SHA-256: `E75D3FE4B6A9CA822766189F826BA3A8348DFB7E301AA37FF6779DB29A83FD8D`
+
+The archived assembly findings and release-candidate results retain the game
+versions and assembly identities of their original investigations and test runs.
 
 ## DSP Plugin Manager migration project
 
